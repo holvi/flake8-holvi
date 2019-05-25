@@ -1,5 +1,8 @@
 # flake8-holvi
 
+flake8-holvi is a flake8 plugin which helps writing Python 3-compatible and Pythonic
+code in Holvi projects.
+
 ## Installation and usage
 
 It's not uploaded to our PyPI server yet. The only way to install it is from GitHub:
