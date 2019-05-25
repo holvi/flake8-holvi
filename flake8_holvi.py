@@ -4,9 +4,7 @@ import ast
 
 import pycodestyle
 
-__version__ = '0.1-dev'
-
-# TODO: Check generic_visit calls
+__version__ = '0.1'
 
 
 def _detect_unicode_decode_error(value, encoding=None):
@@ -47,7 +45,6 @@ class HolviVisitor(ast.NodeVisitor):
 
     def visit_Print(self, node):
         self.report_error(node, 'HLVE001')
-        self.generic_visit(node)
 
     def visit_Call(self, node):
         func = getattr(node, 'func', None)
@@ -85,29 +82,31 @@ class HolviVisitor(ast.NodeVisitor):
         elif func and getattr(func_value, 'id', None) in ('logger', 'logging'):
             logging_methods = ('debug', 'info', 'warning', 'error', 'critical', 'exception')
             if getattr(func, 'attr', None) in logging_methods:
+                # %-format
                 if len(node.args) and isinstance(node.args[0], ast.BinOp):
                     self.report_error(node, 'HLVE006', args=(func_value.id, func.attr))
-                elif len(node.args) and isinstance(node.args[0], ast.Call) and getattr(node.args[0].func, 'attr', None) == 'format':
+                # str.format()
+                elif (
+                    len(node.args) and isinstance(node.args[0], ast.Call)
+                        and getattr(node.args[0].func, 'attr', None) == 'format'
+                ):
                     self.report_error(node, 'HLVE007', args=(func_value.id, func.attr))
+        # Traverse all child nodes.
         self.generic_visit(node)
 
     def report_error(self, node, code, args=None):
         message = self.messages['errors'].get(code)
-        if args:
-            message = message % args
-        if message:
-            message = '%s %s' % (code, message)
-        self._report_message(node, message)
+        self._report_message(node, code, message, args)
 
     def report_warning(self, node, code, args=None):
         message = self.messages['warnings'].get(code)
+        self._report_message(node, code, message, args)
+
+    def _report_message(self, node, code, message, args=None):
         if args:
             message = message % args
         if message:
             message = '%s %s' % (code, message)
-        self._report_message(node, message)
-
-    def _report_message(self, node, message):
         self.violations.append((
             node.lineno,
             node.col_offset,
@@ -117,7 +116,6 @@ class HolviVisitor(ast.NodeVisitor):
 
 
 class HolviChecker(object):
-    options = None
     name = 'flake8-holvi'
     version = __version__
 
@@ -137,9 +135,7 @@ class HolviChecker(object):
         if not self.tree or not self.lines:
             self.load_file()
         self.tree = ast.parse(''.join(self.lines))
-
         visitor = HolviVisitor()
         visitor.visit(self.tree)
-
         for lineno, col_offset, message, rtype in visitor.violations:
             yield lineno, col_offset, message, rtype
