@@ -19,6 +19,8 @@ You don't need to do anything else to be able to use it. However, you can use th
 $ flake8 --select=HLV bankgw/
 ```
 
+Reporting warnings can be disabled by passing the `--disable-warnings` option.
+
 ## Checks
 
 Currently, flake8-holvi detects the following cases as errors and warnings

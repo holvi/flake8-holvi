@@ -40,7 +40,8 @@ class HolviVisitor(ast.NodeVisitor):
         }
     }
 
-    def __init__(self):
+    def __init__(self, ignore_warnings=False):
+        self.ignore_warnings = ignore_warnings
         self.violations = []
 
     def visit_Print(self, node):
@@ -99,6 +100,8 @@ class HolviVisitor(ast.NodeVisitor):
         self._report_message(node, code, message, args)
 
     def report_warning(self, node, code, args=None):
+        if self.ignore_warnings:
+            return
         message = self.messages['warnings'].get(code)
         self._report_message(node, code, message, args)
 
@@ -124,6 +127,20 @@ class HolviChecker(object):
         self.filename = filename
         self.lines = None
 
+    @classmethod
+    def add_options(cls, parser):
+        parser.add_option(
+            '--ignore-warnings',
+            action='store_true',
+            parse_from_config=True,
+            default=False,
+            help='Do not report checks added as warnings.'
+        )
+
+    @classmethod
+    def parse_options(cls, options):
+        cls.ignore_warnings = options.ignore_warnings
+
     def load_file(self):
         if self.filename in ('stdin', '-', None):
             self.filename = 'stdin'
@@ -135,7 +152,7 @@ class HolviChecker(object):
         if not self.tree or not self.lines:
             self.load_file()
         self.tree = ast.parse(''.join(self.lines))
-        visitor = HolviVisitor()
+        visitor = HolviVisitor(self.ignore_warnings)
         visitor.visit(self.tree)
         for lineno, col_offset, message, rtype in visitor.violations:
             yield lineno, col_offset, message, rtype
