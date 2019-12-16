@@ -33,8 +33,8 @@ class HolviVisitor(ast.NodeVisitor):
             'HLVE003': 'str() is renamed to bytes() in Python 3. Use six.binary_type() instead.',
             'HLVE004': 'First argument of unicode() contains non-ASCII characters and it '
                        'will raise UnicodeDecodeError. Pass encoding explicitly.',
-            'HLVE005': 'First argument of unicode() contains non-ASCII characters and decoding '
-                       'it to unicode with ASCII encoding will raise UnicodeDecodeError.',
+            'HLVE005': 'First argument of unicode() contains non-ASCII characters and trying to '
+                       'decode it to unicode with ASCII encoding will raise UnicodeDecodeError.',
             'HLVE006': 'Do not use %%-formatting inside %s.%s().',
             'HLVE007': 'Do not use str.format() inside %s.%s().',
         }
