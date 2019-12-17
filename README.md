@@ -122,13 +122,3 @@ respectively:
    ```py
    unicode(ascii_only_content, better_encoding)
    ```
-
-## Possible future improvements
-
-* Detect implicit relative imports.
-* Suggest using `setUpTestData()` instead of `setUp()`.
-* Detect Python 2-only unittest asserts.
-* Suggest using `io.open()` instead of `open()`.
-* Support checking `unicode(some_variable)` case.
-* Suggest `six.moves` counterparts of Python 2-only imports.
-* Suggest `six.iter*()` counterparts of `dict.iter*()` methods.
