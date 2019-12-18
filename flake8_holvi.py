@@ -37,6 +37,7 @@ class HolviVisitor(ast.NodeVisitor):
                        'decode it to unicode with ASCII encoding will raise UnicodeDecodeError.',
             'HLVE006': 'Do not use %%-formatting inside %s.%s().',
             'HLVE007': 'Do not use str.format() inside %s.%s().',
+            'HLVE008': '%r must be passed to the lambda to avoid late binding issue in Python.',
         }
     }
 
@@ -44,6 +45,11 @@ class HolviVisitor(ast.NodeVisitor):
         self.ignore_warnings = ignore_warnings
         self.violations = []
         self.violation_codes = []
+
+        # TODO: Consider using proper stacks here.
+        self._inside_for_node = None
+        self._lambda_node = None
+        self._detect_late_binding = False
 
     def visit_Print(self, node):
         self.report_error(node, 'HLVE001')
@@ -94,6 +100,40 @@ class HolviVisitor(ast.NodeVisitor):
                 ):
                     self.report_error(node, 'HLVE007', args=(func_value.id, func.attr))
         # Traverse all child nodes.
+        self.generic_visit(node)
+
+    def visit_For(self, node):
+        self._inside_for_node = node
+        self.generic_visit(node)
+
+    def visit_Lambda(self, node):
+        if self._inside_for_node is not None:
+            if isinstance(node.body, ast.Call):
+                self._detect_late_binding = True
+                self._lambda_node = node
+        self.generic_visit(node)
+
+    def visit_Attribute(self, node):
+        if self._detect_late_binding:
+            for_node = self._inside_for_node
+            target = for_node.target.id
+            name = node.value.id
+            if target == name:
+                defaults = self._lambda_node.args.defaults
+                # lambda: target
+                if not defaults:
+                    self.report_error(node, 'HLVE008', args=(target,))
+                # lambda foo=foo: target or lambda foo=foo: target, foo
+                elif len(defaults) == 1:
+                    found = False
+                    for d in defaults:
+                        if d.id == target:
+                            found = True
+                            break
+                    if not found:
+                        # TODO: Perhaps add a more descriptive message?
+                        self.report_error(node, 'HLVE008', args=(target,))
+
         self.generic_visit(node)
 
     def report_error(self, node, code, args=None):

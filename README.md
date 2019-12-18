@@ -82,6 +82,34 @@ respectively:
    str(...)  # Should be replaced with six.binary_type().
    ```
 
+7. Incorrect usage (1):
+
+   ```py
+   for event in events:
+       transaction.on_commit(lambda: task.apply_async((event.id,)))
+   ```
+
+   Correct usage (1):
+
+   ```py
+   for event in events:
+       transaction.on_commit(lambda event=event: task.apply_async((event.id,)))
+   ```
+
+   Incorrect usage (2):
+
+   ```py
+   for event in events:
+       transaction.on_commit(lambda user=user: task.apply_async((event.id, user.email)))
+   ```
+
+   Correct usage (2):
+
+   ```py
+   for event in events:
+       transaction.on_commit(lambda event=event, user=user: task.apply_async((event.id, user.email)))
+   ```
+
 ### Warnings
 
 1. Potentially dangerous usage:

@@ -74,6 +74,19 @@ class HolviVisitorErrorsTestCase(BaseTestCase):
         """
         self.assertSourceViolates(source, ['HLVE007'])
 
+    def test_late_binding(self):
+        source = """
+        for event in events:
+            transaction.on_commit(lambda: task.apply_async((event.id,)))
+        """
+        self.assertSourceViolates(source, ['HLVE008'])
+
+        source = """
+        for event in events:
+            transaction.on_commit(lambda user=user: task.apply_async((event.id, user.email)))
+        """
+        self.assertSourceViolates(source, ['HLVE008'])
+
 
 class HolviCheckerTestCase(BaseTestCase):
 
