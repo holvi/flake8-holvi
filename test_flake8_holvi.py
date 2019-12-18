@@ -19,19 +19,12 @@ class HolviVisitorErrorsTestCase(unittest.TestCase):
         tree = ast.parse(source)
         visitor = HolviVisitor()
         visitor.visit(tree)
-        found_violations = [v[2] for v in visitor.violations]
+        found_violations = visitor.violation_codes
         if self.print_violations:
             print()
             print(found_violations)
             print()
-        found_code = 0
-        for code in violations_codes:
-            for v in found_violations:
-                if v.startswith(code):
-                    found_code += 1
-        if found_code != len(violations_codes):
-            # TODO: Add user-friendly exception message.
-            raise AssertionError
+        self.assertItemsEqual(found_violations, violations_codes)
 
     def test_print(self):
         source = """

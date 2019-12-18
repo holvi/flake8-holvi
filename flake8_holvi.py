@@ -43,6 +43,7 @@ class HolviVisitor(ast.NodeVisitor):
     def __init__(self, ignore_warnings=False):
         self.ignore_warnings = ignore_warnings
         self.violations = []
+        self.violation_codes = []
 
     def visit_Print(self, node):
         self.report_error(node, 'HLVE001')
@@ -116,6 +117,7 @@ class HolviVisitor(ast.NodeVisitor):
             message,
             type(self),
         ))
+        self.violation_codes.append(code)
 
 
 class HolviChecker(object):
