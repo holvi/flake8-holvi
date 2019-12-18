@@ -5,10 +5,11 @@ import ast
 import textwrap
 import unittest
 
+from flake8_holvi import HolviChecker
 from flake8_holvi import HolviVisitor
 
 
-class HolviVisitorErrorsTestCase(unittest.TestCase):
+class BaseTestCase(unittest.TestCase):
 
     print_violations = False
 
@@ -25,6 +26,9 @@ class HolviVisitorErrorsTestCase(unittest.TestCase):
             print(found_violations)
             print()
         self.assertItemsEqual(found_violations, violations_codes)
+
+
+class HolviVisitorErrorsTestCase(BaseTestCase):
 
     def test_print(self):
         source = """
@@ -69,3 +73,38 @@ class HolviVisitorErrorsTestCase(unittest.TestCase):
         logging.info('some {}'.format(stuff))
         """
         self.assertSourceViolates(source, ['HLVE007'])
+
+
+class HolviCheckerTestCase(BaseTestCase):
+
+    def assertRunPlugin(self, source, violations_codes=None):
+        if not violations_codes:
+            raise ValueError('violations keyword-argument must be passed')
+        lines = textwrap.dedent(source).splitlines(True)
+        tree = ast.parse(''.join(lines))
+        plugin = HolviChecker(tree, None, lines)
+        found_violations = [v[2] for v in plugin.run()]
+        expected_violations = []
+        for v in violations_codes:
+            if v.startswith('HLVE'):
+                expected_violations.append(
+                    HolviVisitor._format_message(
+                        v,
+                        HolviVisitor.messages['errors'].get(v),
+                    )
+                )
+            elif v.startswith('HLVW'):
+                expected_violations.append(
+                    HolviVisitor._format_message(
+                        v,
+                        HolviVisitor.messages['warnings'].get(v),
+                    )
+                )
+        self.assertItemsEqual(found_violations, expected_violations)
+
+    def test_skip_noqa(self):
+        source = """
+        stuff = unicode(stuff)
+        logging.info('some {}'.format(stuff))  # noqa
+        """
+        self.assertRunPlugin(source, ['HLVE002'])

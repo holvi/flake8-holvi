@@ -106,11 +106,16 @@ class HolviVisitor(ast.NodeVisitor):
         message = self.messages['warnings'].get(code)
         self._report_message(node, code, message, args)
 
-    def _report_message(self, node, code, message, args=None):
+    @staticmethod
+    def _format_message(code, message, args=None):
         if args:
             message = message % args
         if message:
             message = '%s %s' % (code, message)
+        return message
+
+    def _report_message(self, node, code, message, args=None):
+        message = self._format_message(code, message, args)
         self.violations.append((
             node.lineno,
             node.col_offset,
@@ -124,10 +129,13 @@ class HolviChecker(object):
     name = 'flake8-holvi'
     version = __version__
 
-    def __init__(self, tree, filename):
+    def __init__(self, tree, filename, lines):
         self.tree = tree
         self.filename = filename
-        self.lines = None
+        self.lines = lines
+
+        # Default settings.
+        self.ignore_warnings = False
 
     @classmethod
     def add_options(cls, parser):
@@ -151,10 +159,12 @@ class HolviChecker(object):
             self.lines = pycodestyle.readlines(self.filename)
 
     def run(self):
-        if not self.tree or not self.lines:
+        if not self.tree and not self.lines:
             self.load_file()
         self.tree = ast.parse(''.join(self.lines))
         visitor = HolviVisitor(self.ignore_warnings)
         visitor.visit(self.tree)
         for lineno, col_offset, message, rtype in visitor.violations:
+            if pycodestyle.noqa(self.lines[lineno - 1]):
+                continue
             yield lineno, col_offset, message, rtype
