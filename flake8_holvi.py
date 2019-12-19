@@ -30,6 +30,20 @@ python2_unittest_assertions = {
     'assertRegexpMatches': 'assertRegex',
 }
 
+# TODO: make this configurable via CLI or flake8 config.
+potential_implicit_relative_imports = {
+    'exceptions',
+    'models',
+    'serializers',
+    'signals',
+    'tasks',
+    'views',
+    # Holvi-specific modules:
+    'api',
+    'constants',
+    'providers',
+}
+
 
 def _detect_unicode_decode_error(value, encoding=None):
     try:
@@ -64,6 +78,7 @@ class HolviVisitor(ast.NodeVisitor):
             'HLVE008': '%r must be passed to the lambda to avoid late binding issue in Python.',
             'HLVE009': 'Replace Python 2-only import %r with six.moves.%s.',
             'HLVE010': 'Replace Python 2-only unittest assertion %r with six.%s.',
+            'HLVE011': 'Replace implicit relative import %r with %r.',
         }
     }
 
@@ -191,6 +206,13 @@ class HolviVisitor(ast.NodeVisitor):
                 node,
                 'HLVE009',
                 args=(mod_name, python2_modules_map[mod_name]),
+            )
+        # Ignore explicit relative imports.
+        elif node.level == 0 and mod_name in potential_implicit_relative_imports:
+            self.report_error(
+                node,
+                'HLVE011',
+                args=(mod_name, '.%s' % mod_name),
             )
         self.generic_visit(node)
 

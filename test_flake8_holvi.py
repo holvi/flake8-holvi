@@ -15,7 +15,7 @@ class BaseTestCase(unittest.TestCase):
 
     def assertSourceViolates(self, source, violations_codes=None):
         if not violations_codes:
-            raise ValueError('violations keyword-argument must be passed')
+            violations_codes = []
         source = textwrap.dedent(source)
         tree = ast.parse(source)
         visitor = HolviVisitor()
@@ -115,6 +115,28 @@ class HolviVisitorErrorsTestCase(BaseTestCase):
                 self.assertItemsEqual([], [])
         """
         self.assertSourceViolates(source, ['HLVE010'])
+
+    def test_implicit_relative_imports(self):
+        source = """
+        from models import User
+        """
+        self.assertSourceViolates(source, ['HLVE011'])
+
+        source = """
+        from models import User
+        from tasks import send_welcome_email
+        """
+        self.assertSourceViolates(source, ['HLVE011', 'HLVE011'])
+
+        source = """
+        from .models import User
+        """
+        self.assertSourceViolates(source)
+
+        source = """
+        from django.db import models
+        """
+        self.assertSourceViolates(source)
 
 
 class HolviCheckerTestCase(BaseTestCase):

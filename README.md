@@ -114,6 +114,8 @@ respectively:
 
 9. Suggests `six.<assertion_name>` aliases when it finds Python 2-only unittest assertions.
 
+10. Detects potential implicit relative imports that can be seen in a typical Django project.
+
 ### Warnings
 
 1. Potentially dangerous usage:
