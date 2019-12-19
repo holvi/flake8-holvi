@@ -110,6 +110,8 @@ respectively:
        transaction.on_commit(lambda event=event, user=user: task.apply_async((event.id, user.email)))
    ```
 
+8. Suggests `six.moves` imports when it finds Python 2-only imports.
+
 ### Warnings
 
 1. Potentially dangerous usage:

@@ -6,6 +6,23 @@ import pycodestyle
 
 __version__ = '0.1'
 
+python2_modules_map = {
+    # Python 2 module - six.moves counterpart
+    '__builtin__': 'builtins',
+    'BaseHTTPServer': 'BaseHTTPServer',
+    'ConfigParser': 'configparser',
+    'HTMLParser': 'html_parser',
+    'Queue': 'queue',
+    'SimpleHTTPServer': 'SimpleHTTPServer',
+    'cPickle': 'cPickle',
+    'cStringIO': 'cStringIO',
+    'cookielib': 'http_cookiejar',
+    'cookie': 'http_cookies',
+    'htmlentitydefs': 'html_entities',
+    'httplib': 'http_client',
+    'urlparse': 'urllib.parse',
+}
+
 
 def _detect_unicode_decode_error(value, encoding=None):
     try:
@@ -38,6 +55,7 @@ class HolviVisitor(ast.NodeVisitor):
             'HLVE006': 'Do not use %%-formatting inside %s.%s().',
             'HLVE007': 'Do not use str.format() inside %s.%s().',
             'HLVE008': '%r must be passed to the lambda to avoid late binding issue in Python.',
+            'HLVE009': 'Replace Python 2-only import %r with six.moves.%s.',
         }
     }
 
@@ -134,6 +152,27 @@ class HolviVisitor(ast.NodeVisitor):
                         # TODO: Perhaps add a more descriptive message?
                         self.report_error(node, 'HLVE008', args=(target,))
 
+        self.generic_visit(node)
+
+    def visit_Import(self, node):
+        for name in node.names:
+            mod_name = name.name
+            if mod_name in python2_modules_map:
+                self.report_error(
+                    node,
+                    'HLVE009',
+                    args=(mod_name, python2_modules_map[mod_name]),
+                )
+        self.generic_visit(node)
+
+    def visit_ImportFrom(self, node):
+        mod_name = node.module
+        if mod_name in python2_modules_map:
+            self.report_error(
+                node,
+                'HLVE009',
+                args=(mod_name, python2_modules_map[mod_name]),
+            )
         self.generic_visit(node)
 
     def report_error(self, node, code, args=None):

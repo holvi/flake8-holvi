@@ -87,6 +87,27 @@ class HolviVisitorErrorsTestCase(BaseTestCase):
         """
         self.assertSourceViolates(source, ['HLVE008'])
 
+    def test_python2_imports(self):
+        source = """
+        import urlparse
+        """
+        self.assertSourceViolates(source, ['HLVE009'])
+
+        source = """
+        import urlparse as something_else
+        """
+        self.assertSourceViolates(source, ['HLVE009'])
+
+        source = """
+        from urlparse import urlparse
+        """
+        self.assertSourceViolates(source, ['HLVE009'])
+
+        source = """
+        from urlparse import urlparse as py_urlparse
+        """
+        self.assertSourceViolates(source, ['HLVE009'])
+
 
 class HolviCheckerTestCase(BaseTestCase):
 
