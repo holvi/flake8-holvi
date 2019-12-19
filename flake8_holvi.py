@@ -157,6 +157,13 @@ class HolviVisitor(ast.NodeVisitor):
     def visit_Attribute(self, node):
         if self._detect_late_binding:
             for_node = self._inside_for_node
+            # TODO: Research more and add test cases.
+            if (
+                not isinstance(node.value, ast.Name) or
+                not isinstance(for_node.target, ast.Name)
+            ):
+                self.generic_visit(node)
+                return
             target = for_node.target.id
             name = node.value.id
             if target == name:
@@ -168,7 +175,8 @@ class HolviVisitor(ast.NodeVisitor):
                 elif len(defaults) == 1:
                     found = False
                     for d in defaults:
-                        if d.id == target:
+                        # TODO: Research more and add test cases.
+                        if isinstance(d, ast.Name) and d.id == target:
                             found = True
                             break
                     if not found:
