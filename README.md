@@ -112,6 +112,8 @@ respectively:
 
 8. Suggests `six.moves` imports when it finds Python 2-only imports.
 
+9. Suggests `six.<assertion_name>` aliases when it finds Python 2-only unittest assertions.
+
 ### Warnings
 
 1. Potentially dangerous usage:

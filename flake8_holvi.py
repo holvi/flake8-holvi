@@ -23,6 +23,13 @@ python2_modules_map = {
     'urlparse': 'urllib.parse',
 }
 
+python2_unittest_assertions = {
+    # Python 2 assertion - six counterpart
+    'assertItemsEqual': 'assertCountEqual',
+    'assertRaisesRegexp': 'assertRaisesRegex',
+    'assertRegexpMatches': 'assertRegex',
+}
+
 
 def _detect_unicode_decode_error(value, encoding=None):
     try:
@@ -56,6 +63,7 @@ class HolviVisitor(ast.NodeVisitor):
             'HLVE007': 'Do not use str.format() inside %s.%s().',
             'HLVE008': '%r must be passed to the lambda to avoid late binding issue in Python.',
             'HLVE009': 'Replace Python 2-only import %r with six.moves.%s.',
+            'HLVE010': 'Replace Python 2-only unittest assertion %r with six.%s.',
         }
     }
 
@@ -151,7 +159,18 @@ class HolviVisitor(ast.NodeVisitor):
                     if not found:
                         # TODO: Perhaps add a more descriptive message?
                         self.report_error(node, 'HLVE008', args=(target,))
-
+        else:
+            method_name = node.attr
+            if (
+                isinstance(node.value, ast.Name) and
+                node.value.id == 'self' and
+                method_name in python2_unittest_assertions
+            ):
+                self.report_error(
+                    node,
+                    'HLVE010',
+                    args=(method_name, python2_unittest_assertions[method_name]),
+                )
         self.generic_visit(node)
 
     def visit_Import(self, node):
