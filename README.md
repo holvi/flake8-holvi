@@ -9,7 +9,7 @@ It's not uploaded to our PyPI server yet. The simplest way to install it is from
 GitHub with pip:
 
 ```bash
-$ pip install -e git+https://github.com/holviberker/flake8-holvi.git#egg=flake8-holvi
+$ pip install -e git+https://github.com/holvi/flake8-holvi.git#egg=flake8-holvi
 ```
 
 You don't need to do anything else to be able to use it. However, you can use the
