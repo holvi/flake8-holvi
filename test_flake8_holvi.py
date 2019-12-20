@@ -74,18 +74,75 @@ class HolviVisitorErrorsTestCase(BaseTestCase):
         """
         self.assertSourceViolates(source, ['HLVE007'])
 
-    def test_late_binding(self):
+    def test_late_binding_1(self):
         source = """
         for event in events:
             transaction.on_commit(lambda: task.apply_async((event.id,)))
         """
         self.assertSourceViolates(source, ['HLVE008'])
 
+    def test_late_binding_2(self):
+        source = """
+        for event in events:
+            transaction.on_commit(lambda: task.apply_async((event,)))
+        """
+        self.assertSourceViolates(source, ['HLVE008'])
+
+    def test_late_binding_4(self):
         source = """
         for event in events:
             transaction.on_commit(lambda user=user: task.apply_async((event.id, user.email)))
         """
+        self.assertSourceViolates(source, ['HLVE012'])
+
+    def test_late_binding_5(self):
+        source = """
+        for event in events:
+            transaction.on_commit(lambda user=user: task.apply_async((event.id,)))
+        """
+        self.assertSourceViolates(source, ['HLVE012'])
+
+    def test_late_binding_6(self):
+        source = """
+        for event in events:
+            transaction.on_commit(lambda user_id=user.id: task.apply_async((event.id, user_id)))
+        """
+        self.assertSourceViolates(source, ['HLVE012'])
+
+    def test_late_binding_7(self):
+        source = """
+        for obj in queryset:
+            connection.on_commit(lambda: send_invoice.delay(obj.id, sent_by, language))
+        """
         self.assertSourceViolates(source, ['HLVE008'])
+
+    def test_late_binding_8(self):
+        source = """
+        for obj in queryset:
+            connection.on_commit(lambda: send_invoice.delay(obj))
+        """
+        self.assertSourceViolates(source, ['HLVE008'])
+
+    def test_late_no_error_1(self):
+        source = """
+        for event in events:
+            transaction.on_commit(lambda foo=event: task.apply_async((foo,)))
+        """
+        self.assertSourceViolates(source)
+
+    def test_late_no_error_2(self):
+        source = """
+        for event in events:
+            transaction.on_commit(lambda event=event: task.apply_async((event.id,)))
+        """
+        self.assertSourceViolates(source)
+
+    def test_late_no_error_3(self):
+        source = """
+        for event in events:
+            transaction.on_commit(lambda event=event: validate_event((event,)))
+        """
+        self.assertSourceViolates(source)
 
     def test_python2_imports(self):
         source = """

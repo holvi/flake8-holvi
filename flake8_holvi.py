@@ -79,6 +79,7 @@ class HolviVisitor(ast.NodeVisitor):
             'HLVE009': 'Replace Python 2-only import %r with six.moves.%s.',
             'HLVE010': 'Replace Python 2-only unittest assertion %r with six.%s.',
             'HLVE011': 'Replace implicit relative import %r with %r.',
+            'HLVE012': '%r cannot be found in lambda\'s default argument(s).',
         }
     }
 
@@ -87,10 +88,7 @@ class HolviVisitor(ast.NodeVisitor):
         self.violations = []
         self.violation_codes = []
 
-        # TODO: Consider using proper stacks here.
         self._inside_for_node = None
-        self._lambda_node = None
-        self._detect_late_binding = False
 
     def visit_Print(self, node):
         self.report_error(node, 'HLVE001')
@@ -146,54 +144,76 @@ class HolviVisitor(ast.NodeVisitor):
     def visit_For(self, node):
         self._inside_for_node = node
         self.generic_visit(node)
+        self._inside_for_node = None
 
     def visit_Lambda(self, node):
         if self._inside_for_node is not None:
-            if isinstance(node.body, ast.Call):
-                self._detect_late_binding = True
-                self._lambda_node = node
+            if isinstance(node.body, ast.Call) and isinstance(node.body.func, ast.Attribute):
+                # Get the name of control variable from 'for <control_variable> in ...'.
+                if 'id' not in self._inside_for_node.target._fields:  # pragma: no cover
+                    # TODO: We don't support 'for i, j in ...' yet.
+                    return
+                control_variable = self._inside_for_node.target.id
+                # Default arguments passed to lambda: 'lambda foo=foo: ...'
+                defaults = node.args.defaults
+                for arg in node.body.args:
+                    # Check if arg is ast.List, ast.Tuple, or ast.Set.
+                    if 'elts' in arg._fields:
+                        elts = arg.elts
+                        for e in elts:
+                            # Look for ast.Attribute nodes.
+                            if 'value' in e._fields and e.value.id == control_variable:
+                                if len(defaults) == 0:
+                                    # control variable isn't passed to lambda.
+                                    self.report_error(node, 'HLVE008', args=(control_variable,))
+                                elif len(defaults) > 0:
+                                    # There is a default argument passed, let's check it's used at all.
+                                    found = False
+                                    for d in defaults:
+                                        # TODO: check Attribute node for lambda foo=bar.baz: ...
+                                        # We only look for Name nodes now.
+                                        if 'id' in d._fields and d.id == control_variable:
+                                            found = True
+                                            break
+                                    if not found:
+                                        self.report_error(node, 'HLVE012', args=(control_variable,))
+                            # Look for ast.Name nodes.
+                            elif 'id' in e._fields and e.id == control_variable:
+                                if len(defaults) == 0:
+                                    # Control variable isn't passed to lambda.
+                                    self.report_error(node, 'HLVE008', args=(control_variable,))
+                                elif len(defaults) > 1:  # pragma: no cover
+                                    assert False, 'implement this for ast.Tuple etc.'
+                    # Check if arg is ast.Attribute.
+                    elif 'value' in arg._fields:
+                        if arg.value.id == control_variable:
+                            if len(defaults) == 0:
+                                # Control variable isn't passed to lambda.
+                                self.report_error(node, 'HLVE008', args=(control_variable,))
+                            elif len(defaults) > 1:  # pragma: no cover
+                                assert False, 'implement this for ast.Attribute'
+                    # Check if arg is ast.Name.
+                    elif 'id' in arg._fields:
+                        if arg.id == control_variable:
+                            if len(defaults) == 0:
+                                # Control variable isn't passed to lambda.
+                                self.report_error(node, 'HLVE008', args=(control_variable,))
+                            elif len(defaults) > 1:  # pragma: no cover
+                                assert False, 'implement this for ast.Name'
         self.generic_visit(node)
 
     def visit_Attribute(self, node):
-        if self._detect_late_binding:
-            for_node = self._inside_for_node
-            # TODO: Research more and add test cases.
-            if (
-                not isinstance(node.value, ast.Name) or
-                not isinstance(for_node.target, ast.Name)
-            ):
-                self.generic_visit(node)
-                return
-            target = for_node.target.id
-            name = node.value.id
-            if target == name:
-                defaults = self._lambda_node.args.defaults
-                # lambda: target
-                if not defaults:
-                    self.report_error(node, 'HLVE008', args=(target,))
-                # lambda foo=foo: target or lambda foo=foo: target, foo
-                elif len(defaults) == 1:
-                    found = False
-                    for d in defaults:
-                        # TODO: Research more and add test cases.
-                        if isinstance(d, ast.Name) and d.id == target:
-                            found = True
-                            break
-                    if not found:
-                        # TODO: Perhaps add a more descriptive message?
-                        self.report_error(node, 'HLVE008', args=(target,))
-        else:
-            method_name = node.attr
-            if (
-                isinstance(node.value, ast.Name) and
-                node.value.id == 'self' and
-                method_name in python2_unittest_assertions
-            ):
-                self.report_error(
-                    node,
-                    'HLVE010',
-                    args=(method_name, python2_unittest_assertions[method_name]),
-                )
+        method_name = node.attr
+        if (
+            isinstance(node.value, ast.Name) and
+            node.value.id == 'self' and
+            method_name in python2_unittest_assertions
+        ):
+            self.report_error(
+                node,
+                'HLVE010',
+                args=(method_name, python2_unittest_assertions[method_name]),
+            )
         self.generic_visit(node)
 
     def visit_Import(self, node):
