@@ -1,21 +1,13 @@
 import io
-import re
 
 from setuptools import setup
-
-with io.open('flake8_holvi.py') as f:
-    version = re.search(
-        r'^__version__ = [\'"]([^\'"]*)[\'"]',
-        f.read(),
-        re.M,
-    ).group(1)
 
 with io.open('README.md', encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
     name='flake8-holvi',
-    version=version,
+    version='0.1',
     description='flake8 plugin to help writing Pythonic code at Holvi',
     long_description=long_description,
     long_description_content_type='text/markdown',
