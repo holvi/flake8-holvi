@@ -5,6 +5,10 @@ Unreleased
 ------------
 
 
+0.1.2
+------------
+
+
 0.1.1
 ------------
 * Add changelog and adjust bumpversion

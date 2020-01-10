@@ -4,7 +4,7 @@ import ast
 
 import pycodestyle
 
-__version__ = '0.1.1'
+__version__ = '0.1.2'
 
 python2_modules_map = {
     # Python 2 module - six.moves counterpart
