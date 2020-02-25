@@ -5,8 +5,13 @@ Pythonic code in Holvi projects.
 
 ## Installation and usage
 
-It's not uploaded to our PyPI server yet. The simplest way to install it is from
-GitHub with pip:
+If you are a Holvi employee, you can install it from our PyPI mirror:
+
+```bash
+$ pip install --index-url https://pypi.holvi.net/holvi/staging flake8-holvi
+```
+
+Or you can install it directly from GitHub:
 
 ```bash
 $ pip install -e git+https://github.com/holvi/flake8-holvi.git#egg=flake8-holvi
