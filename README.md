@@ -38,133 +38,227 @@ Reporting warnings can be disabled by passing the `--disable-warnings` option.
 Currently, flake8-holvi detects the following cases as errors and warnings
 respectively:
 
-### Errors
+### Python 3
 
-1. ```py
-   unicode(...)  # Should be replaced with six.text_type().
-   ```
+#### Errors
 
-2. ```py
-   # Should have encoding parameter.
-   unicode('text with non-ASCII characters: ıçğüş')
-   ```
+##### `HLVE001` -- Import `print_function` from `__future__` and use `print()`
 
-   Correct usage:
+**Example:**
 
-   ```py
-   unicode('text with non-ASCII characters: ıçğüş', 'utf-8')
-   ```
+```py
+print 'spam'
+```
 
-3. ```py
-   # Should be used a non-ASCII encoding.
-   unicode('text with non-ASCII characters: ıçğüş', 'ascii')
-   ```
+**Correct example:**
 
-   Correct usage:
+```py
+from __future__ import print_function
 
-   ```py
-   unicode('text with non-ASCII characters: ıçğüş', 'utf-8')
-   ```
+print('spam')
+```
 
-4. Incorrect usage:
+##### `HLVE002` -- `unicode()` is renamed to `str()` in Python 3. Use `six.text_type()` instead
 
-   ```py
-   logger.debug('Some debug information: %s' % foo)
-   ```
+**Example:**
 
-   Correct usage:
+```py
+variable = unicode('spam eggs')
+```
 
-   ```py
-   logger.debug('Some debug information: %s', foo)
-   ```
+**Correct example:**
 
-5. Incorrect usage:
+```py
+from six import text_type
 
-   ```py
-   logger.debug('Some debug information: {}'.format(foo))
-   ```
+variable = text_type('spam eggs')
+```
 
-   Correct usage:
+##### `HLVE003` -- `str()` is renamed to `bytes()` in Python 3. Use `six.binary_type()` instead
 
-   ```py
-   logger.debug('Some debug information: %s', foo)
-   ```
+**Example:**
 
-6. ```py
-   str(...)  # Should be replaced with six.binary_type().
-   ```
+```py
+variable = str(u'spam eggs')
+```
 
-7. Incorrect usage (1):
+**Correct example:**
 
-   ```py
-   for event in events:
-       transaction.on_commit(lambda: task.apply_async((event.id,)))
-   ```
+```py
+from six import binary_type
 
-   Correct usage (1):
+variable = binary_type(u'spam eggs')
+```
 
-   ```py
-   for event in events:
-       transaction.on_commit(lambda event=event: task.apply_async((event.id,)))
-   ```
+##### `HLVE009` -- Replace Python 2-only import `<module_name>` with `six.moves.<module_name>`.
 
-   Incorrect usage (2):
+Full list of `six.moves` can be found at https://six.readthedocs.io/#module-six.moves
 
-   ```py
-   for event in events:
-       transaction.on_commit(lambda user=user: task.apply_async((event.id, user.email)))
-   ```
+**Example:**
 
-   Correct usage (2):
+```py
+import urlparse
 
-   ```py
-   for event in events:
-       transaction.on_commit(lambda event=event, user=user: task.apply_async((event.id, user.email)))
-   ```
+import ConfigParser
+```
 
-8. Suggests `six.moves` imports when it finds Python 2-only imports.
+**Correct example:**
 
-9. Suggests `six.<assertion_name>` aliases when it finds Python 2-only unittest assertions.
+```py
+from six.moves.urllib import parse
 
-10. Detects potential implicit relative imports that can be seen in a typical Django project.
+from six.moves import configparser
+```
 
-### Warnings
+##### `HLVE010` -- Replace Python 2-only unittest assertion `<name>` with `six.<name>`
 
-1. Potentially dangerous usage:
+Currently supported unittest assertions:
 
-   ```py
-   ascii_only_content = get_data_from_external_api()
-   unicode(ascii_only_content)
-   ```
+| Python 2 assertion | ``six`` replacement |
+| --- | --- |
+| ``assertItemsEqual`` | ``six.assertCountEqual`` |
+| ``assertRaisesRegexp`` | ``six.assertRaisesRegex`` |
+| ``assertRegexpMatches`` | ``six.assertRegex`` |
 
-   Safer usage since the default string encoding is `'ascii'` in
-   Python 2 and `get_data_from_external_api()` can return non-ASCII
-   data:
+##### `HLVE011` -- Replace implicit relative import `<module_name>` with `.<module_name>`.
 
-   ```py
-   unicode(ascii_only_content, 'utf-8')
-   ```
+Currently, only the following module names can be detected:
 
-2. Potentially dangerous usage:
+| Module name | Notes |
+| --- | --- |
+| ``exceptions`` | |
+| ``models`` | |
+| ``serializers`` | |
+| ``signals`` | |
+| ``tasks`` | |
+| ``views`` | |
+| ``api`` | Holvi-specific module |
+| ``constants`` | Holvi-specific module |
+| ``providers`` | Holvi-specific module |
 
-   ```py
-   ascii_only_content = get_data_from_external_api()
-   unicode(ascii_only_content, 'ascii')
-   ```
+**Example:**
 
-   `'ascii'` should be passed only if we are 100% sure `ascii_only_content`
-   will always be ASCII-only:
+```py
+from model import MyModel
 
-   ```py
-   >>> non_ascii_content = "ıçğü"
-   >>> unicode(non_ascii_content)
-   Traceback (most recent call last):
-     File "<stdin>", line 1, in <module>
-   UnicodeDecodeError: 'ascii' codec can't decode byte 0xc4 in position 0: ordinal not in range(128)
-   ```
+from serializer import MyModelSerializer
+```
 
-   Otherwise use a more appropriate encoding:
+**Correct example:**
 
-   ```py
-   unicode(ascii_only_content, better_encoding)
-   ```
+```py
+from .model import MyModel
+
+from .serializer import MyModelSerializer
+```
+
+#### Warnings
+
+##### `HLVW001` -- First argument of `unicode()` may contain non-ASCII characters. We recommend passing encoding explicitly.
+
+In Python 2, the default string encoding is `'ascii'`. As a result of this,
+if you call `unicode()` without specifying an encoding, it may raise
+`UnicodeDecodeError` depending on the string you've passed to `unicode()`.
+
+**Example:**
+
+```py
+>>> unicode('text with non-ASCII characters: ıçğüş')
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+UnicodeDecodeError: 'ascii' codec can't decode byte 0xc4 in position 32: ordinal not in range(128)
+>>> content = get_data_from_external_api()
+# This call may fail if 'content' contains non-ASCII characters.
+>>> unicode(content)
+Traceback (most recent call last):
+  File "<stdin>", line 3, in <module>
+UnicodeDecodeError: 'ascii' codec can't decode byte 0xc4 in position 32: ordinal not in range(128)
+```
+
+**Correct example:**
+
+```py
+>>> unicode('text with non-ASCII characters: ıçğüş', 'utf-8')
+u'text with non-ASCII characters: \u0131\xe7\u011f\xfc\u015f'
+>>> content = get_data_from_external_api()
+>>> unicode(content, 'utf-8')
+u'text with non-ASCII characters: \u0131\xe7\u011f\xfc\u015f'
+```
+
+### Common programming mistakes
+
+#### Errors
+
+##### `HLVE006` and `HLVE006` -- Do not use %-formatting or `str.format()` inside logging format strings
+
+The string interpolation operation should be deferred to the `logging`
+module for the following reasons:
+
+* The string interpolation is performed even if logging is disabled in the
+  following example:
+  
+  ```py
+  logger.debug('Something bad happened: %s' % user.id)
+  ```
+  
+  This could cause performance issues especially if `user` information
+  can be fetched from an external service such as a third-party API or
+  database.
+  
+  This pattern can also call `str()`, `unicode()` or `repr()` functions
+  implicitly.
+  
+* It can limit the ability of customizing behavior of the `logging`
+  module. It's advised to pass raw data to `logging.Handler`,
+  `logging.Formatter` and `logging.Filter` classes.
+
+**Examples:**
+
+```py
+logger.debug('Some debug information: %s' % foo)
+
+logger.debug('Some debug information: {}'.format(foo))
+```
+
+**Correct examples:**
+
+```py
+logger.debug('Some debug information: %s', foo)
+```
+
+##### `HLVE008` -- `<name>` must be passed to the lambda to avoid late binding issue in Python
+
+You can check out the following links to learn more about this problem:
+
+* https://medium.com/@adriennedomingus/debugging-background-tasks-inside-loops-and-transactions-cd1230d6280d
+* https://docs.python-guide.org/writing/gotchas/#late-binding-closures
+
+**Example:**
+
+```py
+for event in events:
+    transaction.on_commit(lambda: task.apply_async((event.id,)))
+```
+
+**Correct example:**
+
+```py
+for event in events:
+    transaction.on_commit(lambda event=event: task.apply_async((event.id,)))
+```
+
+##### `HLVE012` -- `<name>` cannot be found in `lambda`'s default argument(s)
+
+**Example:**
+
+```py
+for event in events:
+    transaction.on_commit(lambda user=user: task.apply_async((event.id, user.email)))
+```
+
+**Correct example:**
+
+```py
+for event in events:
+    transaction.on_commit(lambda event=event, user=user: task.apply_async((event.id, user.email)))
+```
