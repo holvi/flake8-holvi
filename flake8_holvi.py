@@ -66,7 +66,7 @@ class HolviVisitor(ast.NodeVisitor):
             'HLVW002': 'trying to decode str with ASCII encoding may not work',
         },
         'errors': {
-            'HLVE001': 'Import print_function __future__ import and use print().',
+            'HLVE001': 'Import print_function from __future__ and use print().',
             'HLVE002': 'unicode() is renamed to str() in Python 3. Use six.text_type() instead.',
             'HLVE003': 'str() is renamed to bytes() in Python 3. Use six.binary_type() instead.',
             'HLVE004': 'First argument of unicode() contains non-ASCII characters and it '
