@@ -21,8 +21,10 @@ $ flake8 --select=HLV bankgw/
 
 Or in `setup.cfg`, you can use the `enable-extensions` setting:
 
+```ini
 [flake8]
 enable-extensions=HLV
+```
 
 Reporting warnings can be disabled by passing the `--disable-warnings` option.
 
