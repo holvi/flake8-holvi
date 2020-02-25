@@ -3,7 +3,7 @@
 
 pushd ..
 
-[ -d ".env" ] || virtualenv .env
+[ -d ".env" ] || virtualenv -p python2 .env
 .env/bin/pip install -r requirements.txt
 
 .env/bin/python -m unittest discover -v .
