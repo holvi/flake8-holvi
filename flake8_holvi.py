@@ -45,34 +45,17 @@ potential_implicit_relative_imports = {
 }
 
 
-def _detect_unicode_decode_error(value, encoding=None):
-    try:
-        if encoding:
-            unicode(value, encoding)
-        else:
-            unicode(value)
-    except UnicodeDecodeError:
-        return True
-    else:
-        return False
-
-
 class HolviVisitor(ast.NodeVisitor):
 
     messages = {
         'warnings': {
             'HLVW001': 'First argument of unicode() may contain non-ASCII characters. '
                        'We recommend passing encoding explicitly.',
-            'HLVW002': 'trying to decode str with ASCII encoding may not work',
         },
         'errors': {
             'HLVE001': 'Import print_function from __future__ and use print().',
             'HLVE002': 'unicode() is renamed to str() in Python 3. Use six.text_type() instead.',
             'HLVE003': 'str() is renamed to bytes() in Python 3. Use six.binary_type() instead.',
-            'HLVE004': 'First argument of unicode() contains non-ASCII characters and it '
-                       'will raise UnicodeDecodeError. Pass encoding explicitly.',
-            'HLVE005': 'First argument of unicode() contains non-ASCII characters and trying to '
-                       'decode it to unicode with ASCII encoding will raise UnicodeDecodeError.',
             'HLVE006': 'Do not use %%-formatting inside %s.%s().',
             'HLVE007': 'Do not use str.format() inside %s.%s().',
             'HLVE008': '%r must be passed to the lambda to avoid late binding issue in Python.',
@@ -103,19 +86,7 @@ class HolviVisitor(ast.NodeVisitor):
             value = getattr(node.args[0], 's', None)
             # unicode('non-ascıı')
             if len(node.args) == 1 and isinstance(value, str):
-                if _detect_unicode_decode_error(value):
-                    self.report_error(node, 'HLVE004')
-                else:
-                    self.report_warning(node, 'HLVW001')
-
-            # unicode('ı', 'ascii')
-            elif len(node.args) == 2 and isinstance(value, str) and node.args[1].s == 'ascii':
-                if _detect_unicode_decode_error(value, 'ascii'):
-                    self.report_error(node, 'HLVE005')
-                else:
-                    self.report_warning(node, 'HLVW002')
-
-            # TODO: Detect unicode(..., encoding='...') too.
+                self.report_warning(node, 'HLVW001')
 
         # str(...)
         elif func and func_name == 'str':

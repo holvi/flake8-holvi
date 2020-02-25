@@ -50,23 +50,10 @@ class HolviVisitorErrorsTestCase(BaseTestCase):
         self.assertSourceViolates(source, ['HLVE003'])
 
     def test_unicode_encoding(self):
-        # TODO: Support a = 'ı'; b = unicode(a) too.
         source = """
         foo = unicode('ı')
         """
-        self.assertSourceViolates(source, ['HLVE004', 'HLVE002'])
-
-    def test_unicode_encoding_ascii(self):
-        source = """
-        foo = unicode('ı', 'ascii')
-        """
-        self.assertSourceViolates(source, ['HLVE005', 'HLVE002'])
-
-    def test_unicode_ascii(self):
-        source = """
-        foo = unicode('a', 'ascii')
-        """
-        self.assertSourceViolates(source, ['HLVE002', 'HLVW002'])
+        self.assertSourceViolates(source, ['HLVW001', 'HLVE002'])
 
     def test_logging_percent_formatting(self):
         source = """
