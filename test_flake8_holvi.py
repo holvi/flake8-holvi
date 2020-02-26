@@ -188,6 +188,128 @@ class HolviVisitorErrorsTestCase(BaseTestCase):
         """
         self.assertSourceViolates(source)
 
+    def test_detect_empty_docstring_in_function(self):
+        source = """
+        def foo():
+            ''''''
+            return 42
+        """
+        self.assertSourceViolates(source, ['HLVE013'])
+
+        source = """
+        def foo():
+            '''
+            '''
+            return 42
+        """
+        self.assertSourceViolates(source, ['HLVE013'])
+
+        source = """
+        def foo():
+            ''''''
+            def bar():
+                ''''''
+                return -1
+            return bar(), 42
+        """
+        self.assertSourceViolates(source, ['HLVE013', 'HLVE013'])
+
+        source = """
+        def foo():
+            def bar():
+                ''''''
+                return -1
+            return bar
+        """
+        self.assertSourceViolates(source, ['HLVE013'])
+
+        source = """
+        def foo():
+            return 42
+        """
+        self.assertSourceViolates(source, [])
+
+    def test_detect_empty_docstring_in_class(self):
+        source = """
+        class Spam(object):
+            ''''''
+            pass
+        """
+        self.assertSourceViolates(source, ['HLVE013'])
+
+        source = """
+        class Spam:
+            ''''''
+            pass
+        """
+        self.assertSourceViolates(source, ['HLVE013'])
+
+        source = """
+        class Spam(object):
+            '''
+            '''
+            pass
+        """
+        self.assertSourceViolates(source, ['HLVE013'])
+
+        source = """
+        class Spam(object):
+            '''
+            '''
+
+            def method(self):
+                ''''''
+        """
+        self.assertSourceViolates(source, ['HLVE013', 'HLVE013'])
+
+        source = """
+        class Spam(object):
+
+            @classmethod
+            def class_method(cls):
+                ''''''
+        """
+        self.assertSourceViolates(source, ['HLVE013'])
+
+        source = """
+        class Spam(object):
+
+            @staticmethod
+            def static_method():
+                ''''''
+        """
+        self.assertSourceViolates(source, ['HLVE013'])
+
+        source = """
+        class Spam(object):
+            '''
+            '''
+
+            class Meta:
+                ''''''
+                foo = object()
+        """
+        self.assertSourceViolates(source, ['HLVE013', 'HLVE013'])
+
+    def test_detect_empty_docstring_in_module(self):
+        source = """
+        ''''''
+
+        import argparse
+
+        CONSTANT = 42
+        """
+        self.assertSourceViolates(source, ['HLVE013'])
+
+        source = """
+        '''
+        
+        '''
+
+        CONSTANT = 42
+        """
+        self.assertSourceViolates(source, ['HLVE013'])
+
 
 class HolviCheckerTestCase(BaseTestCase):
 

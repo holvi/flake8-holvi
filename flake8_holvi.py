@@ -57,6 +57,7 @@ class HolviVisitor(ast.NodeVisitor):
             'HLVE007': 'Do not use str.format() inside %s.%s().',
             'HLVE008': '%r must be passed to the lambda to avoid late binding issue in Python.',
             'HLVE012': '%r cannot be found in lambda\'s default argument(s).',
+            'HLVE013': 'Do not leave docstring in %s empty.',
             'HLVE301': 'Import print_function from __future__ and use print().',
             'HLVE302': 'unicode() is renamed to str() in Python 3. Use six.text_type() instead.',
             'HLVE303': 'str() is renamed to bytes() in Python 3. Use six.binary_type() instead.',
@@ -72,6 +73,38 @@ class HolviVisitor(ast.NodeVisitor):
         self.violation_codes = []
 
         self._inside_for_node = None
+
+    def _has_empty_docstring(self, node):
+        try:
+            docstring = ast.get_docstring(node)
+        except TypeError:
+            return False
+        else:
+            # get_docstring() will return None if node has no docstring.
+            if docstring is None:
+                return False
+            docstring = docstring.strip()
+            if docstring == '':
+                return True
+            return False
+
+    def visit_FunctionDef(self, node):
+        if self._has_empty_docstring(node):
+            if isinstance(node, ast.FunctionDef):
+                # TODO: @staticmethod is detected as function.
+                is_method = node.args.args and node.args.args[0].id in ('self', 'cls')
+                node_kind = 'method' if is_method else 'function'
+                name = '%s() %s' % (node.name, node_kind)
+            elif isinstance(node, ast.ClassDef):
+                name = '%r class' % node.name
+            elif isinstance(node, ast.Module):
+                name = 'module'
+            else:
+                assert False, 'shouldn\'t happen'
+            self.report_error(node, 'HLVE013', args=(name,))
+        self.generic_visit(node)
+
+    visit_ClassDef = visit_Module = visit_FunctionDef
 
     def visit_Print(self, node):
         self.report_error(node, 'HLVE301')
@@ -235,9 +268,11 @@ class HolviVisitor(ast.NodeVisitor):
 
     def _report_message(self, node, code, message, args=None):
         message = self._format_message(code, message, args)
+        lineno = 1 if isinstance(node, ast.Module) else node.lineno
+        col_offset = 1 if isinstance(node, ast.Module) else node.col_offset
         self.violations.append((
-            node.lineno,
-            node.col_offset,
+            lineno,
+            col_offset,
             message,
             type(self),
         ))
