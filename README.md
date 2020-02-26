@@ -310,7 +310,7 @@ self.assertListEqual(expected, got)
 self.assertEqual(expected, got)
 ```
 
-##### `HLVE015` -- `<old_name>` unittest assertion is deprecated. Use `<new_name>` instead.
+##### `HLVE015` -- `<old_name>` unittest assertion is deprecated. Use `<new_name>` instead
 
 | Deprecated assertion name | Preferred assertion name |
 | --- | --- |
