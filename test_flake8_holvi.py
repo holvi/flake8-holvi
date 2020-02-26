@@ -34,26 +34,26 @@ class HolviVisitorErrorsTestCase(BaseTestCase):
         source = """
         print 'yes'
         """
-        self.assertSourceViolates(source, ['HLVE001'])
+        self.assertSourceViolates(source, ['HLVE301'])
 
     def test_unicode(self):
         source = """
         foo = unicode('bar')
         """
-        self.assertSourceViolates(source, ['HLVE002', 'HLVW001'])
+        self.assertSourceViolates(source, ['HLVE302', 'HLVW301'])
 
     def test_bytes(self):
         source = """
         foo = u'foo'
         bar = str(foo)
         """
-        self.assertSourceViolates(source, ['HLVE003'])
+        self.assertSourceViolates(source, ['HLVE303'])
 
     def test_unicode_encoding(self):
         source = """
         foo = unicode('ı')
         """
-        self.assertSourceViolates(source, ['HLVW001', 'HLVE002'])
+        self.assertSourceViolates(source, ['HLVW301', 'HLVE302'])
 
     def test_logging_percent_formatting(self):
         source = """
@@ -141,22 +141,22 @@ class HolviVisitorErrorsTestCase(BaseTestCase):
         source = """
         import urlparse
         """
-        self.assertSourceViolates(source, ['HLVE009'])
+        self.assertSourceViolates(source, ['HLVE309'])
 
         source = """
         import urlparse as something_else
         """
-        self.assertSourceViolates(source, ['HLVE009'])
+        self.assertSourceViolates(source, ['HLVE309'])
 
         source = """
         from urlparse import urlparse
         """
-        self.assertSourceViolates(source, ['HLVE009'])
+        self.assertSourceViolates(source, ['HLVE309'])
 
         source = """
         from urlparse import urlparse as py_urlparse
         """
-        self.assertSourceViolates(source, ['HLVE009'])
+        self.assertSourceViolates(source, ['HLVE309'])
 
     def test_python2_unittest_assertions(self):
         source = """
@@ -164,19 +164,19 @@ class HolviVisitorErrorsTestCase(BaseTestCase):
             def test_foo(self):
                 self.assertItemsEqual([], [])
         """
-        self.assertSourceViolates(source, ['HLVE010'])
+        self.assertSourceViolates(source, ['HLVE310'])
 
     def test_implicit_relative_imports(self):
         source = """
         from models import User
         """
-        self.assertSourceViolates(source, ['HLVE011'])
+        self.assertSourceViolates(source, ['HLVE311'])
 
         source = """
         from models import User
         from tasks import send_welcome_email
         """
-        self.assertSourceViolates(source, ['HLVE011', 'HLVE011'])
+        self.assertSourceViolates(source, ['HLVE311', 'HLVE311'])
 
         source = """
         from .models import User
@@ -221,4 +221,4 @@ class HolviCheckerTestCase(BaseTestCase):
         stuff = unicode(stuff)
         logging.info('some {}'.format(stuff))  # noqa
         """
-        self.assertRunPlugin(source, ['HLVE002'])
+        self.assertRunPlugin(source, ['HLVE302'])

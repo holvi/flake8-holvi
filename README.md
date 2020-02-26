@@ -42,7 +42,7 @@ respectively:
 
 #### Errors
 
-##### `HLVE001` -- Import `print_function` from `__future__` and use `print()`
+##### `HLVE301` -- Import `print_function` from `__future__` and use `print()`
 
 **Example:**
 
@@ -58,7 +58,7 @@ from __future__ import print_function
 print('spam')
 ```
 
-##### `HLVE002` -- `unicode()` is renamed to `str()` in Python 3. Use `six.text_type()` instead
+##### `HLVE302` -- `unicode()` is renamed to `str()` in Python 3. Use `six.text_type()` instead
 
 **Example:**
 
@@ -74,7 +74,7 @@ from six import text_type
 variable = text_type('spam eggs')
 ```
 
-##### `HLVE003` -- `str()` is renamed to `bytes()` in Python 3. Use `six.binary_type()` instead
+##### `HLVE303` -- `str()` is renamed to `bytes()` in Python 3. Use `six.binary_type()` instead
 
 **Example:**
 
@@ -90,7 +90,7 @@ from six import binary_type
 variable = binary_type(u'spam eggs')
 ```
 
-##### `HLVE009` -- Replace Python 2-only import `<module_name>` with `six.moves.<module_name>`.
+##### `HLVE309` -- Replace Python 2-only import `<module_name>` with `six.moves.<module_name>`.
 
 Full list of `six.moves` can be found at https://six.readthedocs.io/#module-six.moves
 
@@ -110,7 +110,7 @@ from six.moves.urllib import parse
 from six.moves import configparser
 ```
 
-##### `HLVE010` -- Replace Python 2-only unittest assertion `<name>` with `six.<name>`
+##### `HLVE310` -- Replace Python 2-only unittest assertion `<name>` with `six.<name>`
 
 Currently supported unittest assertions:
 
@@ -120,7 +120,7 @@ Currently supported unittest assertions:
 | ``assertRaisesRegexp`` | ``six.assertRaisesRegex`` |
 | ``assertRegexpMatches`` | ``six.assertRegex`` |
 
-##### `HLVE011` -- Replace implicit relative import `<module_name>` with `.<module_name>`.
+##### `HLVE311` -- Replace implicit relative import `<module_name>` with `.<module_name>`.
 
 Currently, only the following module names can be detected:
 
@@ -154,7 +154,7 @@ from .serializer import MyModelSerializer
 
 #### Warnings
 
-##### `HLVW001` -- First argument of `unicode()` may contain non-ASCII characters. We recommend passing encoding explicitly.
+##### `HLVW301` -- First argument of `unicode()` may contain non-ASCII characters. We recommend passing encoding explicitly.
 
 In Python 2, the default string encoding is `'ascii'`. As a result of this,
 if you call `unicode()` without specifying an encoding, it may raise

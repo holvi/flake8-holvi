@@ -49,20 +49,20 @@ class HolviVisitor(ast.NodeVisitor):
 
     messages = {
         'warnings': {
-            'HLVW001': 'First argument of unicode() may contain non-ASCII characters. '
+            'HLVW301': 'First argument of unicode() may contain non-ASCII characters. '
                        'We recommend passing encoding explicitly.',
         },
         'errors': {
-            'HLVE001': 'Import print_function from __future__ and use print().',
-            'HLVE002': 'unicode() is renamed to str() in Python 3. Use six.text_type() instead.',
-            'HLVE003': 'str() is renamed to bytes() in Python 3. Use six.binary_type() instead.',
             'HLVE006': 'Do not use %%-formatting inside %s.%s().',
             'HLVE007': 'Do not use str.format() inside %s.%s().',
             'HLVE008': '%r must be passed to the lambda to avoid late binding issue in Python.',
-            'HLVE009': 'Replace Python 2-only import %r with six.moves.%s.',
-            'HLVE010': 'Replace Python 2-only unittest assertion %r with six.%s.',
-            'HLVE011': 'Replace implicit relative import %r with %r.',
             'HLVE012': '%r cannot be found in lambda\'s default argument(s).',
+            'HLVE301': 'Import print_function from __future__ and use print().',
+            'HLVE302': 'unicode() is renamed to str() in Python 3. Use six.text_type() instead.',
+            'HLVE303': 'str() is renamed to bytes() in Python 3. Use six.binary_type() instead.',
+            'HLVE309': 'Replace Python 2-only import %r with six.moves.%s.',
+            'HLVE310': 'Replace Python 2-only unittest assertion %r with six.%s.',
+            'HLVE311': 'Replace implicit relative import %r with %r.',
         }
     }
 
@@ -74,7 +74,7 @@ class HolviVisitor(ast.NodeVisitor):
         self._inside_for_node = None
 
     def visit_Print(self, node):
-        self.report_error(node, 'HLVE001')
+        self.report_error(node, 'HLVE301')
 
     def visit_Call(self, node):
         func = getattr(node, 'func', None)
@@ -82,15 +82,15 @@ class HolviVisitor(ast.NodeVisitor):
         func_value = getattr(func, 'value', None)
         # unicode(...)
         if func and func_name == 'unicode':
-            self.report_error(node, 'HLVE002')
+            self.report_error(node, 'HLVE302')
             value = getattr(node.args[0], 's', None)
             # unicode('non-ascıı')
             if len(node.args) == 1 and isinstance(value, str):
-                self.report_warning(node, 'HLVW001')
+                self.report_warning(node, 'HLVW301')
 
         # str(...)
         elif func and func_name == 'str':
-            self.report_error(node, 'HLVE003')
+            self.report_error(node, 'HLVE303')
             # TODO: str(u"aaaı")
 
         # logging.debug('%s' % 'a')
@@ -182,7 +182,7 @@ class HolviVisitor(ast.NodeVisitor):
         ):
             self.report_error(
                 node,
-                'HLVE010',
+                'HLVE310',
                 args=(method_name, python2_unittest_assertions[method_name]),
             )
         self.generic_visit(node)
@@ -193,7 +193,7 @@ class HolviVisitor(ast.NodeVisitor):
             if mod_name in python2_modules_map:
                 self.report_error(
                     node,
-                    'HLVE009',
+                    'HLVE309',
                     args=(mod_name, python2_modules_map[mod_name]),
                 )
         self.generic_visit(node)
@@ -203,14 +203,14 @@ class HolviVisitor(ast.NodeVisitor):
         if mod_name in python2_modules_map:
             self.report_error(
                 node,
-                'HLVE009',
+                'HLVE309',
                 args=(mod_name, python2_modules_map[mod_name]),
             )
         # Ignore explicit relative imports.
         elif node.level == 0 and mod_name in potential_implicit_relative_imports:
             self.report_error(
                 node,
-                'HLVE011',
+                'HLVE311',
                 args=(mod_name, '.%s' % mod_name),
             )
         self.generic_visit(node)
