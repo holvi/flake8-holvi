@@ -263,6 +263,28 @@ for event in events:
     transaction.on_commit(lambda event=event, user=user: task.apply_async((event.id, user.email)))
 ```
 
+##### `HLVE013` -- Do not leave docstring in `<name>` empty
+
+**Example:**
+
+```py
+def get_events(client):
+    """"""
+    return client.get_events(period=constants.TWO_MONTHS)
+```
+
+**Correct example:**
+
+```py
+def get_events(client):
+    """Return list of event from third-party API."""
+    return client.get_events(period=constants.TWO_MONTHS)
+
+def get_events(client):
+    return client.get_events(period=constants.TWO_MONTHS)
+```
+
+
 ##### `HLVE014` -- Invoking `<assertion_name>` directly is unnecessary. Use `assertEqual` instead
 
 The `assertEqual` method will call the following unittest assertions implicitly:
