@@ -326,6 +326,12 @@ class HolviVisitorErrorsTestCase(BaseTestCase):
         """
         self.assertSourceViolates(source, [])
 
+    def test_deprecated_unittest_assertions(self):
+        source = """
+        self.assertEquals('spam', 'spam')
+        """
+        self.assertSourceViolates(source, ['HLVE015'])
+
 
 class HolviCheckerTestCase(BaseTestCase):
 

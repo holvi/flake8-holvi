@@ -39,6 +39,12 @@ nonstandard_unittest_assertequal_asserts = (
     'assertSetEqual',
     'assertDictEqual',
 )
+
+deprecated_unittest_assertions = {
+    # Deprecated a long time ago.
+    'assertEquals': 'assertEqual',
+}
+
 # TODO: make this configurable via CLI or flake8 config.
 potential_implicit_relative_imports = {
     'exceptions',
@@ -68,6 +74,7 @@ class HolviVisitor(ast.NodeVisitor):
             'HLVE012': '%r cannot be found in lambda\'s default argument(s).',
             'HLVE013': 'Do not leave docstring in %s empty.',
             'HLVE014': 'Invoking %r directly is unnecessary. Use assertEqual instead.',
+            'HLVE015': '%r unittest assertion is deprecated. Use %r instead.',
             'HLVE301': 'Import print_function from __future__ and use print().',
             'HLVE302': 'unicode() is renamed to str() in Python 3. Use six.text_type() instead.',
             'HLVE303': 'str() is renamed to bytes() in Python 3. Use six.binary_type() instead.',
@@ -230,6 +237,12 @@ class HolviVisitor(ast.NodeVisitor):
                 )
             elif method_name in nonstandard_unittest_assertequal_asserts:
                 self.report_error(node, 'HLVE014', args=(method_name,))
+            elif method_name in deprecated_unittest_assertions:
+                self.report_error(
+                    node,
+                    'HLVE015',
+                    args=(method_name, deprecated_unittest_assertions[method_name]),
+                )
         self.generic_visit(node)
 
     def visit_Import(self, node):

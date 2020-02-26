@@ -287,3 +287,9 @@ self.assertListEqual(expected, got)
 ```py
 self.assertEqual(expected, got)
 ```
+
+##### `HLVE015` -- `<old_name>` unittest assertion is deprecated. Use `<new_name>` instead.
+
+| Deprecated assertion name | Preferred assertion name |
+| --- | --- |
+| ``assertEquals`` | ``assertEqual`` |
