@@ -75,6 +75,7 @@ class HolviVisitor(ast.NodeVisitor):
             'HLVE013': 'Do not leave docstring in %s empty.',
             'HLVE014': 'Invoking %r directly is unnecessary. Use assertEqual instead.',
             'HLVE015': '%r unittest assertion is deprecated. Use %r instead.',
+            'HLVE016': 'Use of assert statement can be dangerous. Raise AssertionError or proper exceptions instead.',
             'HLVE301': 'Import print_function from __future__ and use print().',
             'HLVE302': 'unicode() is renamed to str() in Python 3. Use six.text_type() instead.',
             'HLVE303': 'str() is renamed to bytes() in Python 3. Use six.binary_type() instead.',
@@ -125,6 +126,9 @@ class HolviVisitor(ast.NodeVisitor):
 
     def visit_Print(self, node):
         self.report_error(node, 'HLVE301')
+
+    def visit_Assert(self, node):
+        self.report_error(node, 'HLVE016')
 
     def visit_Call(self, node):
         func = getattr(node, 'func', None)

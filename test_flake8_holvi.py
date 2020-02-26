@@ -332,6 +332,20 @@ class HolviVisitorErrorsTestCase(BaseTestCase):
         """
         self.assertSourceViolates(source, ['HLVE015'])
 
+    def test_assert_statement(self):
+        source = """
+        assert False
+        """
+        self.assertSourceViolates(source, ['HLVE016'])
+
+        source = """
+        assert False
+
+        def foo():
+            assert got == expected
+        """
+        self.assertSourceViolates(source, ['HLVE016', 'HLVE016'])
+
 
 class HolviCheckerTestCase(BaseTestCase):
 

@@ -315,3 +315,27 @@ self.assertEqual(expected, got)
 | Deprecated assertion name | Preferred assertion name |
 | --- | --- |
 | ``assertEquals`` | ``assertEqual`` |
+
+##### `HLVE016` -- Use of `assert` statement can be dangerous. Raise `AssertionError` or proper exceptions instead.
+
+Quoting from the [official Python documentation](https://docs.python.org/2/tutorial/modules.html#compiled-python-files):
+
+> When the Python interpreter is invoked with the -O flag, optimized code is
+> generated and stored in .pyo files. The optimizer currently doesn’t help
+> much; it only removes assert statements.
+
+See [this issue](https://github.com/IdentityPython/pysaml2/issues/451) from
+`pysaml2` for a real world example of such a problem.
+
+**Example:**
+
+```py
+assert self.request.user.age <= 18
+```
+
+**Correct example:**
+
+```py
+if self.request.user.age <= 18:
+    raise ValueError('User age must be 18 or more')
+```
