@@ -262,3 +262,28 @@ for event in events:
 for event in events:
     transaction.on_commit(lambda event=event, user=user: task.apply_async((event.id, user.email)))
 ```
+
+##### `HLVE014` -- Invoking `<assertion_name>` directly is unnecessary. Use `assertEqual` instead
+
+The `assertEqual` method will call the following unittest assertions implicitly:
+
+* `assertMultiLineEqual`
+* `assertSequenceEqual`
+* `assertListEqual`
+* `assertTupleEqual`
+* `assertSetEqual`
+* `assertDictEqual`
+
+More information can be found at https://docs.python.org/2/library/unittest.html#unittest.TestCase.addTypeEqualityFunc
+
+**Example:**
+
+```py
+self.assertListEqual(expected, got)
+```
+
+**Correct example:**
+
+```py
+self.assertEqual(expected, got)
+```

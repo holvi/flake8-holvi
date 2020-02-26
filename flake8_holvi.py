@@ -30,6 +30,15 @@ python2_unittest_assertions = {
     'assertRegexpMatches': 'assertRegex',
 }
 
+# List taken from unittest documentation.
+nonstandard_unittest_assertequal_asserts = (
+    'assertMultiLineEqual',
+    'assertSequenceEqual',
+    'assertListEqual',
+    'assertTupleEqual',
+    'assertSetEqual',
+    'assertDictEqual',
+)
 # TODO: make this configurable via CLI or flake8 config.
 potential_implicit_relative_imports = {
     'exceptions',
@@ -58,6 +67,7 @@ class HolviVisitor(ast.NodeVisitor):
             'HLVE008': '%r must be passed to the lambda to avoid late binding issue in Python.',
             'HLVE012': '%r cannot be found in lambda\'s default argument(s).',
             'HLVE013': 'Do not leave docstring in %s empty.',
+            'HLVE014': 'Invoking %r directly is unnecessary. Use assertEqual instead.',
             'HLVE301': 'Import print_function from __future__ and use print().',
             'HLVE302': 'unicode() is renamed to str() in Python 3. Use six.text_type() instead.',
             'HLVE303': 'str() is renamed to bytes() in Python 3. Use six.binary_type() instead.',
@@ -210,14 +220,16 @@ class HolviVisitor(ast.NodeVisitor):
         method_name = node.attr
         if (
             isinstance(node.value, ast.Name) and
-            node.value.id == 'self' and
-            method_name in python2_unittest_assertions
+            node.value.id == 'self'
         ):
-            self.report_error(
-                node,
-                'HLVE310',
-                args=(method_name, python2_unittest_assertions[method_name]),
-            )
+            if method_name in python2_unittest_assertions:
+                self.report_error(
+                    node,
+                    'HLVE310',
+                    args=(method_name, python2_unittest_assertions[method_name]),
+                )
+            elif method_name in nonstandard_unittest_assertequal_asserts:
+                self.report_error(node, 'HLVE014', args=(method_name,))
         self.generic_visit(node)
 
     def visit_Import(self, node):

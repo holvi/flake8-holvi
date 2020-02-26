@@ -310,6 +310,22 @@ class HolviVisitorErrorsTestCase(BaseTestCase):
         """
         self.assertSourceViolates(source, ['HLVE013'])
 
+    def test_nonstandard_unittest_assertions(self):
+        source = """
+        self.assertListEqual(foo, bar)
+        """
+        self.assertSourceViolates(source, ['HLVE014'])
+
+        source = """
+        self.assertSetEqual(foo, bar)
+        """
+        self.assertSourceViolates(source, ['HLVE014'])
+
+        source = """
+        self.assertEqual(foo, bar)
+        """
+        self.assertSourceViolates(source, [])
+
 
 class HolviCheckerTestCase(BaseTestCase):
 
