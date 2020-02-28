@@ -83,7 +83,7 @@ class HolviVisitor(ast.NodeVisitor):
             'HLVE310': 'Replace Python 2-only unittest assertion %r with six.%s.',
             'HLVE311': 'Replace implicit relative import %r with %r.',
             'HLVE312': '%s must be of type six.binary_type when it\'s compared to %r',
-            'HLVE313': 'BaseException.message has been deprecated. Use six.text_type(%s) instead.',
+            'HLVE313': 'BaseException.message has been removed in Python 3. Use six.text_type(%s) instead.',
         }
     }
 

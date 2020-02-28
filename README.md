@@ -193,7 +193,7 @@ class MyTestCase(TestCase):
         self.assertIn(expected, response.content)
 ```
 
-##### `HLVE313` -- `BaseException.message` has been deprecated. Use `six.text_type(<exception_variable>)` instead
+##### `HLVE313` -- `BaseException.message` has been removed in Python 3. Use `six.text_type(<exception_variable>)` instead
 
 **Example:**
 
