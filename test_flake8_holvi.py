@@ -347,6 +347,54 @@ class HolviVisitorErrorsTestCase(BaseTestCase):
         self.assertSourceViolates(source, ['HLVE016', 'HLVE016'])
 
 
+class HLVE312TestCase(BaseTestCase):
+
+    def test_assertin_1(self):
+        source = """
+        class FooTestCase(unittest.TestCase):
+            def test_foo(self):
+                response = self.client.get('https://www.holvi.com/')
+                self.assertIn(u'bar', response.content)
+        """
+        self.assertSourceViolates(source, ['HLVE312'])
+
+    def test_assertin_2(self):
+        source = """
+        class FooTestCase(unittest.TestCase):
+            def test_foo(self):
+                self.assertIn(u'bar', self.last_response.content)
+        """
+        self.assertSourceViolates(source, ['HLVE312'])
+
+    def test_assertin_3(self):
+        source = """
+        class FooTestCase(unittest.TestCase):
+            def test_get(self):
+                r = self.client.post('https://www.holvi.com/')
+                expected = u'test string'
+                self.assertIn(expected, r.content)
+        """
+        self.assertSourceViolates(source, ['HLVE312'])
+
+    def test_assertin_4(self):
+        source = """
+        class FooTestCase(unittest.TestCase):
+            def test_get(self):
+                expected = u'test string'
+                self.assertIn(expected, self.last_response.content)
+        """
+        self.assertSourceViolates(source, ['HLVE312'])
+
+    def test_assertin_5(self):
+        source = """
+        class FooTestCase(unittest.TestCase):
+            def test_get(self):
+                response = self.client.get('https://www.holvi.com/')
+                self.assertIn('bar', response.content)
+        """
+        self.assertSourceViolates(source)
+
+
 class HolviCheckerTestCase(BaseTestCase):
 
     def assertRunPlugin(self, source, violations_codes=None):

@@ -82,6 +82,7 @@ class HolviVisitor(ast.NodeVisitor):
             'HLVE309': 'Replace Python 2-only import %r with six.moves.%s.',
             'HLVE310': 'Replace Python 2-only unittest assertion %r with six.%s.',
             'HLVE311': 'Replace implicit relative import %r with %r.',
+            'HLVE312': '%s must be of type six.binary_type when it\'s compared to %r',
         }
     }
 
@@ -90,6 +91,7 @@ class HolviVisitor(ast.NodeVisitor):
         self.violations = []
         self.violation_codes = []
 
+        self.node_stack = []
         self._inside_for_node = None
 
     def _has_empty_docstring(self, node):
@@ -105,6 +107,13 @@ class HolviVisitor(ast.NodeVisitor):
             if docstring == '':
                 return True
             return False
+
+    def _get_target_name(self, node):
+        if isinstance(node.value, ast.Name):
+            return '%s.content' % node.value.id
+        if isinstance(node.value, ast.Attribute):
+            return '%s.%s.content' % (node.value.value.id, node.value.attr)
+        assert False, 'please report this to holvi/flake8-holvi'
 
     def visit_FunctionDef(self, node):
         if self._has_empty_docstring(node):
@@ -163,6 +172,41 @@ class HolviVisitor(ast.NodeVisitor):
                         and getattr(node.args[0].func, 'attr', None) == 'format'
                 ):
                     self.report_error(node, 'HLVE007', args=(func_value.id, func.attr))
+
+        # self.assertIn(..., response.content)
+        elif func and getattr(func_value, 'id', None) == 'self':
+            method_name = getattr(func, 'attr', None)
+            # For assertIn, the first argument must be Str or Name.
+            if method_name in ('assertIn', 'assertNotIn'):
+                first = node.args[0]
+                second = node.args[1]
+                if isinstance(second, ast.Attribute):
+                    if second.attr == 'content':
+                        # self.assertIn(u'foo', response.content)
+                        if isinstance(first, ast.Str):
+                            if not isinstance(first.s, str):
+                                prefix = 'First argument of assertIn'
+                                target_name = self._get_target_name(second)
+                                self.report_error(first, 'HLVE312', args=(prefix, target_name))
+
+                        # self.assertIn(variable, response.content)
+                        elif isinstance(first, ast.Name):
+                            for n in reversed(self.node_stack[:-1]):
+                                if isinstance(n, ast.FunctionDef):
+                                    for stmt in n.body:
+                                        if (
+                                            isinstance(stmt, ast.Assign) and
+                                            isinstance(stmt.targets[0], ast.Name) and
+                                            isinstance(stmt.value, ast.Str) and
+                                            stmt.targets[0].id == first.id and
+                                            not isinstance(stmt.value.s, str)
+                                        ):
+                                            prefix = '%r of assertIn' % first.id
+                                            target_name = self._get_target_name(second)
+                                            self.report_error(first, 'HLVE312', args=(prefix, target_name))
+                                            break
+                                    break
+
         # Traverse all child nodes.
         self.generic_visit(node)
 
@@ -276,6 +320,11 @@ class HolviVisitor(ast.NodeVisitor):
                 args=(mod_name, '.%s' % mod_name),
             )
         self.generic_visit(node)
+
+    def visit(self, node):
+        self.node_stack.append(node)
+        super(HolviVisitor, self).visit(node)
+        self.node_stack.pop()
 
     def report_error(self, node, code, args=None):
         message = self.messages['errors'].get(code)

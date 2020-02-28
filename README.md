@@ -152,6 +152,47 @@ from .model import MyModel
 from .serializer import MyModelSerializer
 ```
 
+##### `HLVE312` -- `<expected_content>` must be of type `six.binary_type` when it's compared to `<response_content>`
+
+`TestClient` of Django returns `six.binary_type` both in Python 2 and Python 3.
+
+Note that we are only supporting `assertIn` and `assertNotIn` unittest
+assertions for now.
+
+**Example:**
+
+```py
+from __future__ import unicode_literals
+
+class MyTestCase(TestCase):
+
+    def test_get(self):
+        response = self.client.get('https://www.holvi.com')
+        self.assertIn('foo', response.content)
+
+    def test_get_404(self):
+        response = self.client.get('https://www.holvi.com/404/')
+        expected = 'bar'
+        self.assertIn(expected, response.content)
+```
+
+**Correct example:**
+
+```py
+from __future__ import unicode_literals
+
+class MyTestCase(TestCase):
+
+    def test_get(self):
+        response = self.client.get('https://www.holvi.com')
+        self.assertIn(b'foo', response.content)
+
+    def test_get_404(self):
+        response = self.client.get('https://www.holvi.com/404/')
+        expected = b'bar'
+        self.assertIn(expected, response.content)
+```
+
 #### Warnings
 
 ##### `HLVW301` -- First argument of `unicode()` may contain non-ASCII characters. We recommend passing encoding explicitly.
