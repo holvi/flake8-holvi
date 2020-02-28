@@ -193,6 +193,45 @@ class MyTestCase(TestCase):
         self.assertIn(expected, response.content)
 ```
 
+##### `HLVE313` -- `BaseException.message` has been deprecated. Use `six.text_type(<exception_variable>)` instead
+
+**Example:**
+
+```py
+try:
+    1/0
+except Exception as exc:
+    assert 'integer division' in exc.message
+```
+
+**Correct example:**
+
+```py
+from six import text_type
+
+try:
+    1/0
+except Exception as exc:
+    assert 'integer division' in text_type(exc)
+```
+
+**Python 2 note:** An encoding must be specified if `exc` may contain non-ASCII
+characters:
+
+```py
+from six import PY3
+from six import text_type
+
+try:
+    1/0
+except Exception as exc:
+    if PY3:
+        exc_message = text_type(exc)
+    else:
+        exc_messge = text_type(exc, 'utf-8')
+    assert 'integer division' in exc_message
+```
+
 #### Warnings
 
 ##### `HLVW301` -- First argument of `unicode()` may contain non-ASCII characters. We recommend passing encoding explicitly.

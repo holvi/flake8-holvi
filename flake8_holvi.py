@@ -83,6 +83,7 @@ class HolviVisitor(ast.NodeVisitor):
             'HLVE310': 'Replace Python 2-only unittest assertion %r with six.%s.',
             'HLVE311': 'Replace implicit relative import %r with %r.',
             'HLVE312': '%s must be of type six.binary_type when it\'s compared to %r',
+            'HLVE313': 'BaseException.message has been deprecated. Use six.text_type(%s) instead.',
         }
     }
 
@@ -135,9 +136,11 @@ class HolviVisitor(ast.NodeVisitor):
 
     def visit_Print(self, node):
         self.report_error(node, 'HLVE301')
+        self.generic_visit(node)
 
     def visit_Assert(self, node):
         self.report_error(node, 'HLVE016')
+        self.generic_visit(node)
 
     def visit_Call(self, node):
         func = getattr(node, 'func', None)
@@ -291,6 +294,11 @@ class HolviVisitor(ast.NodeVisitor):
                     'HLVE015',
                     args=(method_name, deprecated_unittest_assertions[method_name]),
                 )
+        elif isinstance(node.value, ast.Name) and node.attr == 'message':
+            for n in reversed(self.node_stack[:-1]):
+                if isinstance(n, ast.ExceptHandler) and n.name.id == node.value.id:
+                    self.report_error(node, 'HLVE313', args=(n.name.id,))
+                    break
         self.generic_visit(node)
 
     def visit_Import(self, node):

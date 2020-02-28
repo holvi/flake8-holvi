@@ -395,6 +395,60 @@ class HLVE312TestCase(BaseTestCase):
         self.assertSourceViolates(source)
 
 
+class HLVE313TestCase(BaseTestCase):
+
+    def test_variable(self):
+        source = """
+        try:
+            1/0
+        except Exception as exc:
+            foo = exc.message
+        """
+        self.assertSourceViolates(source, ['HLVE313'])
+
+    def test_print(self):
+        source = """
+        from __future__ import print_function
+
+        try:
+            1/0
+        except Exception as exc:
+            print(exc.message)
+        """
+        self.assertSourceViolates(source, ['HLVE313'])
+
+    def test_assert(self):
+        source = """
+        try:
+            1/0
+        except Exception as exc:
+            assert exc.message == 'foo'
+        """
+        self.assertSourceViolates(source, ['HLVE016', 'HLVE313'])
+
+    def test_assert_in(self):
+        source = """
+        try:
+            1/0
+        except Exception as exc:
+            assert 'integer division' in exc.message
+        """
+        self.assertSourceViolates(source, ['HLVE016', 'HLVE313'])
+
+    def test_print_and_assert(self):
+        # Make sure that generic_visit() calls aren't missing.
+        source = """
+        from __future__ import print_function
+
+        try:
+            1/0
+        except Exception as exc:
+            print(exc.message)
+            assert exc.message == 'foo'
+        """
+        self.assertSourceViolates(source, ['HLVE313', 'HLVE016', 'HLVE313'])
+
+
 class HolviCheckerTestCase(BaseTestCase):
 
     def assertRunPlugin(self, source, violations_codes=None):
