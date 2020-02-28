@@ -90,7 +90,7 @@ from six import binary_type
 variable = binary_type(u'spam eggs')
 ```
 
-##### `HLVE309` -- Replace Python 2-only import `<module_name>` with `six.moves.<module_name>`.
+##### `HLVE309` -- Replace Python 2-only import `<module_name>` with `six.moves.<module_name>`
 
 Full list of `six.moves` can be found at https://six.readthedocs.io/#module-six.moves
 
@@ -120,7 +120,7 @@ Currently supported unittest assertions:
 | ``assertRaisesRegexp`` | ``six.assertRaisesRegex`` |
 | ``assertRegexpMatches`` | ``six.assertRegex`` |
 
-##### `HLVE311` -- Replace implicit relative import `<module_name>` with `.<module_name>`.
+##### `HLVE311` -- Replace implicit relative import `<module_name>` with `.<module_name>`
 
 Currently, only the following module names can be detected:
 
@@ -139,7 +139,7 @@ Currently, only the following module names can be detected:
 **Example:**
 
 ```py
-from model import MyModel
+from models import MyModel
 
 from serializer import MyModelSerializer
 ```
@@ -147,7 +147,7 @@ from serializer import MyModelSerializer
 **Correct example:**
 
 ```py
-from .model import MyModel
+from .models import MyModel
 
 from .serializer import MyModelSerializer
 ```
@@ -234,7 +234,7 @@ except Exception as exc:
 
 #### Warnings
 
-##### `HLVW301` -- First argument of `unicode()` may contain non-ASCII characters. We recommend passing encoding explicitly.
+##### `HLVW301` -- First argument of `unicode()` may contain non-ASCII characters. We recommend passing encoding explicitly
 
 In Python 2, the default string encoding is `'ascii'`. As a result of this,
 if you call `unicode()` without specifying an encoding, it may raise
@@ -396,7 +396,7 @@ self.assertEqual(expected, got)
 | --- | --- |
 | ``assertEquals`` | ``assertEqual`` |
 
-##### `HLVE016` -- Use of `assert` statement can be dangerous. Raise `AssertionError` or proper exceptions instead.
+##### `HLVE016` -- Use of `assert` statement can be dangerous. Raise `AssertionError` or proper exceptions instead
 
 Quoting from the [official Python documentation](https://docs.python.org/2/tutorial/modules.html#compiled-python-files):
 
