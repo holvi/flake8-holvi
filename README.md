@@ -141,7 +141,7 @@ Currently, only the following module names can be detected:
 ```py
 from models import MyModel
 
-from serializer import MyModelSerializer
+from serializers import MyModelSerializer
 ```
 
 **Correct example:**
@@ -149,7 +149,7 @@ from serializer import MyModelSerializer
 ```py
 from .models import MyModel
 
-from .serializer import MyModelSerializer
+from .serializers import MyModelSerializer
 ```
 
 ##### `HLVE312` -- `<expected_content>` must be of type `six.binary_type` when it's compared to `<response_content>`
