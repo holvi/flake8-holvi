@@ -449,6 +449,36 @@ class HLVE313TestCase(BaseTestCase):
         self.assertSourceViolates(source, ['HLVE313', 'HLVE016', 'HLVE313'])
 
 
+class HLVE314TestCase(BaseTestCase):
+
+    def test_iterkeys(self):
+        source = """
+        d = {}
+
+        for k in d.iterkeys():
+            pass
+        """
+        self.assertSourceViolates(source, ['HLVE314'])
+
+    def test_itervalues(self):
+        source = """
+        d = {}
+
+        for v in d.itervalues():
+            pass
+        """
+        self.assertSourceViolates(source, ['HLVE314'])
+
+    def test_iteritems(self):
+        source = """
+        d = {}
+
+        for k, v in d.iterkeys():
+            pass
+        """
+        self.assertSourceViolates(source, ['HLVE314'])
+
+
 class HolviCheckerTestCase(BaseTestCase):
 
     def assertRunPlugin(self, source, violations_codes=None):

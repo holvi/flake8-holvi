@@ -232,6 +232,36 @@ except Exception as exc:
     assert 'integer division' in exc_message
 ```
 
+##### `HLVE314` -- `dict.<deprecated_method>` has been removed in Python 2. Use `six.<deprecated_method>` instead
+
+Currently supported `dict` methods:
+
+| Python 2 `dict` method | ``six`` replacement |
+| --- | --- |
+| ``dict.iterkeys`` | ``six.iterkeys`` |
+| ``dict.itervalues`` | ``six.itervalues`` |
+| ``dict.iteritems`` | ``six.iteritems`` |
+
+**Example:**
+
+```py
+d = {}
+
+for k, v in d.iteritems():
+    print k, v
+```
+
+**Correct example:**
+
+```py
+from six import iteritems
+
+d = {}
+
+for k, v in iteritems(d):
+    print k, v
+```
+
 #### Warnings
 
 ##### `HLVW301` -- First argument of `unicode()` may contain non-ASCII characters. We recommend passing encoding explicitly

@@ -59,6 +59,12 @@ potential_implicit_relative_imports = {
     'providers',
 }
 
+python2_builtin_methods = {
+    'iterkeys',
+    'itervalues',
+    'iteritems',
+}
+
 
 class HolviVisitor(ast.NodeVisitor):
 
@@ -84,6 +90,7 @@ class HolviVisitor(ast.NodeVisitor):
             'HLVE311': 'Replace implicit relative import %r with %r.',
             'HLVE312': '%s must be of type six.binary_type when it\'s compared to %r',
             'HLVE313': 'BaseException.message has been removed in Python 3. Use six.text_type(%s) instead.',
+            'HLVE314': '%r has been removed in Python 2. Use %r instead.',
         }
     }
 
@@ -210,7 +217,11 @@ class HolviVisitor(ast.NodeVisitor):
                                             break
                                     break
 
-        # Traverse all child nodes.
+        elif func and isinstance(func, ast.Attribute) and func.attr in python2_builtin_methods:
+            old_name = '%s.%s()' % (func.value.id, func.attr)
+            new_name = 'six.%s()' % func.attr
+            self.report_error(func, 'HLVE314', args=(old_name, new_name))
+
         self.generic_visit(node)
 
     def visit_For(self, node):
