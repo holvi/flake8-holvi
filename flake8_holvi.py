@@ -217,8 +217,14 @@ class HolviVisitor(ast.NodeVisitor):
                                             break
                                     break
 
+        # dict.iteritems() and its friends.
         elif func and isinstance(func, ast.Attribute) and func.attr in python2_builtin_methods:
-            old_name = '%s.%s()' % (func.value.id, func.attr)
+            if isinstance(func.value, ast.Name):
+                old_name = '%s.%s()' % (func.value.id, func.attr)
+            elif isinstance(func.value, ast.Attribute):
+                old_name = '%s.%s.%s()' % (func.value.value.id, func.value.attr, func.attr)
+            else:
+                assert False, 'please report this to holvi/flake8-holvi'
             new_name = 'six.%s()' % func.attr
             self.report_error(func, 'HLVE314', args=(old_name, new_name))
 

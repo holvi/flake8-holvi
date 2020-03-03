@@ -478,6 +478,17 @@ class HLVE314TestCase(BaseTestCase):
         """
         self.assertSourceViolates(source, ['HLVE314'])
 
+    def test_attribute(self):
+        source = """
+        class Foo(object):
+            d = {}
+
+            def bar(self):
+                for k, v in self.d.iterkeys():
+                    pass
+        """
+        self.assertSourceViolates(source, ['HLVE314'])
+
 
 class HolviCheckerTestCase(BaseTestCase):
 
