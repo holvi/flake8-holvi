@@ -357,6 +357,24 @@ for event in events:
     transaction.on_commit(lambda event=event: task.apply_async((event.id,)))
 ```
 
+##### `HLVE009` -- `<str_format>` is used inside `<logging_call>` but no value is passed to it
+
+**Example:**
+
+```py
+import logging
+
+logging.debug('Foo: %s')
+```
+
+**Correct example:**
+
+```py
+import logging
+
+logging.debug('Foo: %s', 'test')
+```
+
 ##### `HLVE012` -- `<name>` cannot be found in `lambda`'s default argument(s)
 
 **Example:**

@@ -490,6 +490,33 @@ class HLVE314TestCase(BaseTestCase):
         self.assertSourceViolates(source, ['HLVE314'])
 
 
+class HLVE009TestCase(BaseTestCase):
+
+    def test_string(self):
+        source = """
+        import logging
+
+        logging.debug('Foo: %s')
+        """
+        self.assertSourceViolates(source, ['HLVE009'])
+
+    def test_number(self):
+        source = """
+        import logging
+
+        logging.info('Bar: %d')
+        """
+        self.assertSourceViolates(source, ['HLVE009'])
+
+    def test_string_and_number(self):
+        source = """
+        import logging
+
+        logging.warning('%s(%d)')
+        """
+        self.assertSourceViolates(source, ['HLVE009', 'HLVE009'])
+
+
 class HolviCheckerTestCase(BaseTestCase):
 
     def assertRunPlugin(self, source, violations_codes=None):

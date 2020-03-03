@@ -77,6 +77,7 @@ class HolviVisitor(ast.NodeVisitor):
             'HLVE006': 'Do not use %%-formatting inside %s.%s().',
             'HLVE007': 'Do not use str.format() inside %s.%s().',
             'HLVE008': '%r must be passed to the lambda to avoid late binding issue in Python.',
+            'HLVE009': '%r is used inside %s.%s() but no value is passed to it.',
             'HLVE012': '%r cannot be found in lambda\'s default argument(s).',
             'HLVE013': 'Do not leave docstring in %s empty.',
             'HLVE014': 'Invoking %r directly is unnecessary. Use assertEqual instead.',
@@ -182,6 +183,13 @@ class HolviVisitor(ast.NodeVisitor):
                         and getattr(node.args[0].func, 'attr', None) == 'format'
                 ):
                     self.report_error(node, 'HLVE007', args=(func_value.id, func.attr))
+                # logging.debug('Foo: %s')
+                elif len(node.args) == 1 and isinstance(node.args[0], ast.Str):
+                    logging_statement = node.args[0].s
+                    if '%s' in logging_statement:
+                        self.report_error(node, 'HLVE009', args=('%s', func_value.id, func.attr))
+                    if '%d' in logging_statement:
+                        self.report_error(node, 'HLVE009', args=('%d', func_value.id, func.attr))
 
         # self.assertIn(..., response.content)
         elif func and getattr(func_value, 'id', None) == 'self':
