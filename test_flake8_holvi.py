@@ -517,6 +517,28 @@ class HLVE009TestCase(BaseTestCase):
         self.assertSourceViolates(source, ['HLVE009', 'HLVE009'])
 
 
+class HLVE010TestCase(BaseTestCase):
+
+    def test_global(self):
+        source = """
+        import logging
+
+        logging.exception('foo')
+        """
+        self.assertSourceViolates(source, ['HLVE010'])
+
+    def test_no_violation(self):
+        source = """
+        import logging
+
+        try:
+            1/0
+        except Exception:
+            logging.exception('foo')
+        """
+        self.assertSourceViolates(source)
+
+
 class HolviCheckerTestCase(BaseTestCase):
 
     def assertRunPlugin(self, source, violations_codes=None):

@@ -375,6 +375,27 @@ import logging
 logging.debug('Foo: %s', 'test')
 ```
 
+##### `HLVE010` -- `logging.exception()` must be used inside an except block
+
+**Example:**
+
+```py
+import logging
+
+logging.exception('Something went wrong.')
+```
+
+**Correct example:**
+
+```py
+import logging
+
+try:
+    1/0
+except Exception:
+    logging.exception('Something went wrong.')
+```
+
 ##### `HLVE012` -- `<name>` cannot be found in `lambda`'s default argument(s)
 
 **Example:**
