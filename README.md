@@ -126,6 +126,7 @@ Currently, only the following module names can be detected:
 
 | Module name | Notes |
 | --- | --- |
+| ``forms`` | |
 | ``exceptions`` | |
 | ``models`` | |
 | ``serializers`` | |

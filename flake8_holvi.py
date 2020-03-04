@@ -47,6 +47,7 @@ deprecated_unittest_assertions = {
 
 # TODO: make this configurable via CLI or flake8 config.
 potential_implicit_relative_imports = {
+    'forms',
     'exceptions',
     'models',
     'serializers',
