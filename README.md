@@ -299,7 +299,7 @@ u'text with non-ASCII characters: \u0131\xe7\u011f\xfc\u015f'
 
 #### Errors
 
-##### `HLVE006` and `HLVE006` -- Do not use %-formatting or `str.format()` inside logging format strings
+##### `HLVE006` and `HLVE007` -- Do not use %-formatting or `str.format()` inside logging format strings
 
 The string interpolation operation should be deferred to the `logging`
 module for the following reasons:
