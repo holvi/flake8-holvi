@@ -473,7 +473,7 @@ class HLVE314TestCase(BaseTestCase):
         source = """
         d = {}
 
-        for k, v in d.iterkeys():
+        for k, v in d.iteritems():
             pass
         """
         self.assertSourceViolates(source, ['HLVE314'])
@@ -484,10 +484,21 @@ class HLVE314TestCase(BaseTestCase):
             d = {}
 
             def bar(self):
-                for k, v in self.d.iterkeys():
+                for k in self.d.iterkeys():
                     pass
         """
         self.assertSourceViolates(source, ['HLVE314'])
+
+    def test_six_iteritems(self):
+        source = """
+        import six
+
+        d = {}
+
+        for k, v in six.iteritems(d):
+            pass
+        """
+        self.assertSourceViolates(source)
 
 
 class HLVE009TestCase(BaseTestCase):
