@@ -139,7 +139,8 @@ class HolviVisitor(ast.NodeVisitor):
                 name = 'module'
             else:
                 assert False, 'shouldn\'t happen'
-            self.report_error(node, 'HLVE013', args=(name,))
+            # The following node is also used by ast.get_docstring().
+            self.report_error(node.body[0].value, 'HLVE013', args=(name,))
         self.generic_visit(node)
 
     visit_ClassDef = visit_Module = visit_FunctionDef
