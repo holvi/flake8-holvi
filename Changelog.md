@@ -7,22 +7,38 @@ Unreleased
 
 0.3.2
 ------------
+* Detect 'forms' imports as part of HLVE311
 
 
 0.3.1
 ------------
+* Do not report six.iter*() as HLVE314
 
 
 0.3.0
 ------------
+* Rename Python 3 compatibility checks to HLVE3XX and HLVW3XX
+* Detect empty docstrings where possible
+* Warn against usages of assert*Equal methods
+* Warn usage of deprecated assertEquals unittest assertion
+* Warn against the use of assert statement
+* Check that first argument of assertIn is bytes for TectClient
+* Warn against use of exc.message attribute
+* Suggest use of six.iter*() instead of dict.iter*()
+* Detect misformatted logging format strings
+* Warn when logging.exception() is not used inside try...except
 
 
 0.2.0
 ------------
+* Tweak error message of HLVE001 check
+* Remove checks that aren't practical and useful
+* Reorganize flake8-holvi documentation
 
 
 0.1.2
 ------------
+* Add MANIFEST.in to fix packaging
 
 
 0.1.1
@@ -32,5 +48,4 @@ Unreleased
 
 0.1.0
 ------------
-Initial changes
-* Library bootstrapping and inital rules
+* Library bootstrapping and initial rules
