@@ -5,6 +5,10 @@ Unreleased
 ------------
 
 
+0.3.3
+------------
+
+
 0.3.2
 ------------
 * Detect 'forms' imports as part of HLVE311
@@ -12,19 +16,19 @@ Unreleased
 
 0.3.1
 ------------
-* Do not report six.iter*() as HLVE314
+() as HLVE314
 
 
 0.3.0
 ------------
+Equal methods
+ ()
 * Rename Python 3 compatibility checks to HLVE3XX and HLVW3XX
 * Detect empty docstrings where possible
-* Warn against usages of assert*Equal methods
 * Warn usage of deprecated assertEquals unittest assertion
 * Warn against the use of assert statement
 * Check that first argument of assertIn is bytes for TectClient
 * Warn against use of exc.message attribute
-* Suggest use of six.iter*() instead of dict.iter*()
 * Detect misformatted logging format strings
 * Warn when logging.exception() is not used inside try...except
 
