@@ -74,21 +74,23 @@ from six import text_type
 variable = text_type('spam eggs')
 ```
 
-##### `HLVE303` -- `str()` is renamed to `bytes()` in Python 3. Use `six.binary_type()` instead
+##### `HLVE303` -- `str()` is renamed to `bytes()` in Python 3. Use `six.text_type()` or `six.binary_type()` instead
 
 **Example:**
 
 ```py
-variable = str(u'spam eggs')
+variable = str(123)
 ```
 
 **Correct example:**
 
 ```py
-from six import binary_type
+from six import text_type
 
-variable = binary_type(u'spam eggs')
+variable = text_type(123)
 ```
+
+Most of the time you can safely replace `str()` with `six.text_type()`.
 
 ##### `HLVE309` -- Replace Python 2-only import `<module_name>` with `six.moves.<module_name>`
 

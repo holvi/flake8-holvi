@@ -87,7 +87,7 @@ class HolviVisitor(ast.NodeVisitor):
             'HLVE016': 'Use of assert statement can be dangerous. Raise AssertionError or proper exceptions instead.',
             'HLVE301': 'Import print_function from __future__ and use print().',
             'HLVE302': 'unicode() is renamed to str() in Python 3. Use six.text_type() instead.',
-            'HLVE303': 'str() is renamed to bytes() in Python 3. Use six.binary_type() instead.',
+            'HLVE303': 'str() is renamed to bytes() in Python 3. Use six.text_type() or six.binary_type() instead.',
             'HLVE309': 'Replace Python 2-only import %r with six.moves.%s.',
             'HLVE310': 'Replace Python 2-only unittest assertion %r with six.%s.',
             'HLVE311': 'Replace implicit relative import %r with %r.',
