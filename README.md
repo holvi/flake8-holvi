@@ -122,6 +122,30 @@ Currently supported unittest assertions:
 | ``assertRaisesRegexp`` | ``six.assertRaisesRegex`` |
 | ``assertRegexpMatches`` | ``six.assertRegex`` |
 
+**Example:**
+
+```py
+class MyTestCase(TestCase):
+
+    def test_division_by_zero(self):
+        with self.assertRaisesRegexp(ZeroDivisionError, 'division or modulo'):
+            1/0
+```
+
+**Correct example:**
+
+```py
+import six
+
+class MyTestCase(TestCase):
+
+    def test_division_by_zero(self):
+        with six.assertRaisesRegex(self, ZeroDivisionError, 'division or modulo'):
+            1/0
+```
+
+Note where `self` goes.
+
 ##### `HLVE311` -- Replace implicit relative import `<module_name>` with `.<module_name>`
 
 Currently, only the following module names can be detected:

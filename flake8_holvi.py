@@ -89,7 +89,7 @@ class HolviVisitor(ast.NodeVisitor):
             'HLVE302': 'unicode() is renamed to str() in Python 3. Use six.text_type() instead.',
             'HLVE303': 'str() is renamed to bytes() in Python 3. Use six.text_type() or six.binary_type() instead.',
             'HLVE309': 'Replace Python 2-only import %r with six.moves.%s.',
-            'HLVE310': 'Replace Python 2-only unittest assertion %r with six.%s.',
+            'HLVE310': 'Replace Python 2-only unittest assertion self.%s(...) with six.%s(self, ...).',
             'HLVE311': 'Replace implicit relative import %r with %r.',
             'HLVE312': '%s must be of type six.binary_type when it\'s compared to %r',
             'HLVE313': 'BaseException.message has been removed in Python 3. Use six.text_type(%s) instead.',
