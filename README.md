@@ -494,14 +494,32 @@ self.assertEqual(expected, got)
 
 ##### `HLVE016` -- Use of `assert` statement can be dangerous. Raise `AssertionError` or proper exceptions instead
 
-Quoting from the [official Python documentation](https://docs.python.org/2/tutorial/modules.html#compiled-python-files):
+There are several reasons to not use `assert` statement in Python:
 
-> When the Python interpreter is invoked with the -O flag, optimized code is
-> generated and stored in .pyo files. The optimizer currently doesn’t help
-> much; it only removes assert statements.
+1. Quoting from the [official Python documentation](https://docs.python.org/2/tutorial/modules.html#compiled-python-files):
 
-See [this issue](https://github.com/IdentityPython/pysaml2/issues/451) from
-`pysaml2` for a real world example of such a problem.
+   > When the Python interpreter is invoked with the -O flag, optimized code is
+   > generated and stored in .pyo files. The optimizer currently doesn’t help
+   > much; it only removes assert statements.
+
+   See [this issue](https://github.com/IdentityPython/pysaml2/issues/451) from
+   `pysaml2` for a real world example of such a problem.
+
+2. Adding parenthesis around the statement (for example, to silence flake8's
+   [E501 rule](https://www.flake8rules.com/rules/E501.html)) can cause
+   unexpected behavior:
+
+   ```py
+   >>> a_very_long_variable_that_may_be_needed_for_clarity = 42
+   >>> assert (
+   ...     a_very_long_variable_that_may_be_needed_for_clarity == 42,
+   ...     'Sanity check before moving on.'
+   ... )
+   <stdin>:1: SyntaxWarning: assertion is always true, perhaps remove parentheses?
+   ```
+
+3. Almost all usages of `assert` can be replaced with a better suited exception
+   such as `ValueError` or `TypeError`.
 
 **Example:**
 
