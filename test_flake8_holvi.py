@@ -448,6 +448,30 @@ class HLVE313TestCase(BaseTestCase):
         """
         self.assertSourceViolates(source, ['HLVE313', 'HLVE016', 'HLVE313'])
 
+    def test_correct_message_usage(self):
+        # Django's ValidationError has a message attribute.
+        source = """
+        from django.core.exceptions import ValidationError
+
+        try:
+            raise ValidationError('foo')
+        except ValidationError as exc:
+            message = exc.message
+        """
+        self.assertSourceViolates(source)
+
+        # Non-Django ValidationErrors should still warn about use
+        # of the message attribute.
+        source = """
+        from rest_framework.exceptions import ValidationError
+
+        try:
+            raise ValidationError('foo')
+        except ValidationError as exc:
+            message = exc.message
+        """
+        self.assertSourceViolates(source, ['HLVE313'])
+
 
 class HLVE314TestCase(BaseTestCase):
 

@@ -103,6 +103,7 @@ class HolviVisitor(ast.NodeVisitor):
         self.violation_codes = []
 
         self.node_stack = []
+        self.import_from_nodes = []
         self._inside_for_node = None
 
     def _has_empty_docstring(self, node):
@@ -327,9 +328,19 @@ class HolviVisitor(ast.NodeVisitor):
                     args=(method_name, deprecated_unittest_assertions[method_name]),
                 )
         elif isinstance(node.value, ast.Name) and node.attr == 'message':
+            whitelist_exceptions = [
+                # Django's ValidationError has a message attribute.
+                ('django.core.exceptions', 'ValidationError'),
+            ]
             for n in reversed(self.node_stack[:-1]):
                 if isinstance(n, ast.ExceptHandler) and n.name.id == node.value.id:
-                    self.report_error(node, 'HLVE313', args=(n.name.id,))
+                    found = False
+                    for exc in whitelist_exceptions:
+                        if exc[1] == n.type.id and exc in self.import_from_nodes:
+                            found = True
+                            break
+                    if not found:
+                        self.report_error(node, 'HLVE313', args=(n.name.id,))
                     break
         self.generic_visit(node)
 
@@ -345,6 +356,7 @@ class HolviVisitor(ast.NodeVisitor):
         self.generic_visit(node)
 
     def visit_ImportFrom(self, node):
+        self.import_from_nodes.append((node.module, node.names[0].name))
         mod_name = node.module
         if mod_name in python2_modules_map:
             self.report_error(
