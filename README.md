@@ -533,3 +533,53 @@ assert self.request.user.age <= 18
 if self.request.user.age <= 18:
     raise ValueError('User age must be 18 or more')
 ```
+
+## `holvi_lib2to3`
+
+`holvi_lib2to3` is based on `lib2to3` module from the Python standard library and
+it has a set of fixers that helps removing Python 2-only features from a codebase.
+
+## Installation and usage
+
+`holvi_lib2to3` is automatically installed with `flake8-holvi`.
+
+Usage:
+
+```
+$ python -m holvi_lib2to3 -f future example.py
+```
+
+All command-line arguments accepted by `2to3` also work with `holvi_lib2to3`. See
+official documentation of [`2to3`](https://docs.python.org/3/library/2to3.html)
+for more details.
+
+### `fix_future`
+
+The default future fixer from `lib2to3` doesn't cleanup whitespaces. The custom
+future fixer in `holvi_lib2to3` will cleanup all whitespaces.
+
+**Example diff with `lib2to3.fixes.fix_future`:**
+
+```diff
+--- example.py	(original)
++++ example.py	(refactored)
+@@ -1,4 +1,4 @@
+-from __future__ import unicode_literals
++
+
+ import unittest
+
+```
+
+**Example diff with `holvi_lib2to3.fixes.fix_future`:**
+
+```diff
+--- example.py	(original)
++++ example.py	(refactored)
+@@ -1,5 +1,3 @@
+-from __future__ import unicode_literals
+-
+ import unittest
+
+
+```

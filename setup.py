@@ -15,6 +15,7 @@ setup(
     author_email='bpeksag@holvi.com',
     url='https://github.com/holviberker/flake8-holvi',
     py_modules=['flake8_holvi'],
+    packages=['holvi_lib2to3'],
     entry_points={
         'flake8.extension': [
             'HLV = flake8_holvi:HolviChecker',
