@@ -345,7 +345,9 @@ class HolviVisitor(ast.NodeVisitor):
                 ('django.core.exceptions', 'ValidationError'),
             ]
             for n in reversed(self.node_stack[:-1]):
-                if isinstance(n, ast.ExceptHandler) and n.name.id == node.value.id:
+                # n.name.id is present in Python 2 whereas n.name is str
+                # in Python 3.
+                if isinstance(n, ast.ExceptHandler) and getattr(n.name, 'id', n.name) == node.value.id:
                     found = False
                     for exc in whitelist_exceptions:
                         if exc[1] == n.type.id and exc in self.import_from_nodes:
