@@ -7,7 +7,7 @@ with io.open('README.md', encoding='utf-8') as f:
 
 setup(
     name='flake8-holvi',
-    version='0.4.0',
+    version='0.5.0',
     description='flake8 plugin to help writing Pythonic code at Holvi',
     long_description=long_description,
     long_description_content_type='text/markdown',
