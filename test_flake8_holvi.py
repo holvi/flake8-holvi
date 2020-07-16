@@ -2,14 +2,20 @@
 from __future__ import print_function
 
 import ast
+import sys
 import textwrap
 import unittest
 
 from flake8_holvi import HolviChecker
 from flake8_holvi import HolviVisitor
 
+PY3 = sys.version_info[0] == 3
+
 
 class BaseTestCase(unittest.TestCase):
+
+    if not PY3:
+        assertCountEqual = unittest.TestCase.assertItemsEqual
 
     print_violations = False
 
@@ -25,11 +31,12 @@ class BaseTestCase(unittest.TestCase):
             print()
             print(found_violations)
             print()
-        self.assertItemsEqual(found_violations, violations_codes)
+        self.assertCountEqual(found_violations, violations_codes)
 
 
 class HolviVisitorErrorsTestCase(BaseTestCase):
 
+    @unittest.skipIf(PY3, reason='needs Python 2')
     def test_print(self):
         source = """
         print 'yes'
@@ -347,6 +354,7 @@ class HolviVisitorErrorsTestCase(BaseTestCase):
         self.assertSourceViolates(source, ['HLVE016', 'HLVE016'])
 
 
+@unittest.skipIf(PY3, reason='needs Python 2')
 class HLVE312TestCase(BaseTestCase):
 
     def test_assertin_1(self):
@@ -395,6 +403,7 @@ class HLVE312TestCase(BaseTestCase):
         self.assertSourceViolates(source)
 
 
+@unittest.skipIf(PY3, reason='needs Python 2')
 class HLVE313TestCase(BaseTestCase):
 
     def test_variable(self):
@@ -599,7 +608,7 @@ class HolviCheckerTestCase(BaseTestCase):
                         HolviVisitor.messages['warnings'].get(v),
                     )
                 )
-        self.assertItemsEqual(found_violations, expected_violations)
+        self.assertCountEqual(found_violations, expected_violations)
 
     def test_skip_noqa(self):
         source = """

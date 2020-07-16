@@ -131,7 +131,19 @@ class HolviVisitor(ast.NodeVisitor):
         if self._has_empty_docstring(node):
             if isinstance(node, ast.FunctionDef):
                 # TODO: @staticmethod is detected as function.
-                is_method = node.args.args and node.args.args[0].id in ('self', 'cls')
+                # arg.id is present in Python 2 whereas arg.arg is present
+                # in Python 3.
+                if node.args.args:
+                    arg = node.args.args[0]
+                    if 'id' in arg._fields:
+                        argument_name = arg.id
+                    elif 'arg' in arg._fields:
+                        argument_name = arg.arg
+                    else:
+                        argument_name = None
+                else:
+                    argument_name = None
+                is_method = argument_name in ('self', 'cls')
                 node_kind = 'method' if is_method else 'function'
                 name = '%s() %s' % (node.name, node_kind)
             elif isinstance(node, ast.ClassDef):
