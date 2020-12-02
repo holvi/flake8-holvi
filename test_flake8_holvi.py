@@ -533,6 +533,26 @@ class HLVE314TestCase(BaseTestCase):
         """
         self.assertSourceViolates(source)
 
+    def test_iteritems_on_Call_with_arguments(self):
+        source = """
+        class Foo(object):
+
+            def bar(self):
+                return dict(
+                    (key, value) for key, value in CompanyAddressSerializer(address).data.iteritems()
+                    if key in ['building']
+                )
+        """
+        self.assertSourceViolates(source, ['HLVE314'])
+
+    def test_iteritems_on_Call_without_arguments(self):
+        source = """
+        class Foo(object):
+
+            def bar(self):
+                return {value: key for key, value in Serializer().data.iteritems()}
+        """
+        self.assertSourceViolates(source, ['HLVE314'])
 
 class HLVE009TestCase(BaseTestCase):
 

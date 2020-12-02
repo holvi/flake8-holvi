@@ -253,7 +253,17 @@ class HolviVisitor(ast.NodeVisitor):
                 old_name = '%s.%s()' % (func.value.id, func.attr)
                 self.report_error(func, 'HLVE314', args=(old_name, new_name))
             elif isinstance(func.value, ast.Attribute):
-                old_name = '%s.%s.%s()' % (func.value.value.id, func.value.attr, func.attr)
+                obj = func.value.value
+                if isinstance(obj, ast.Name):
+                    old_name = '%s.%s.%s()' % (obj.id, func.value.attr, func.attr)
+                elif isinstance(obj, ast.Call):
+                    if obj.args or obj.keywords:
+                        obj_args = '(...)'
+                    else:
+                        obj_args = '()'
+                    old_name = '%s%s.%s.%s()' % (obj.func.id, obj_args, func.value.attr, func.attr)
+                else:  # pragma: no cover
+                    assert False, 'uncovered case; please report to holvi/flake8-holvi'
                 self.report_error(func, 'HLVE314', args=(old_name, new_name))
 
         self.generic_visit(node)
