@@ -93,7 +93,7 @@ class HolviVisitor(ast.NodeVisitor):
             'HLVE311': 'Replace implicit relative import %r with %r.',
             'HLVE312': '%s must be of type six.binary_type when it\'s compared to %r',
             'HLVE313': 'BaseException.message has been removed in Python 3. Use six.text_type(%s) instead.',
-            'HLVE314': '%r has been removed in Python 2. Use %r instead.',
+            'HLVE314': '%r has been removed in Python 3. Use %r instead.',
         }
     }
 

@@ -259,7 +259,7 @@ except Exception as exc:
     assert 'integer division' in exc_message
 ```
 
-##### `HLVE314` -- `dict.<deprecated_method>` has been removed in Python 2. Use `six.<deprecated_method>` instead
+##### `HLVE314` -- `dict.<deprecated_method>` has been removed in Python 3. Use `six.<deprecated_method>` instead
 
 Currently supported `dict` methods:
 
