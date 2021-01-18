@@ -13,7 +13,7 @@ setup(
     long_description_content_type='text/markdown',
     author='Berker Peksag',
     author_email='bpeksag@holvi.com',
-    url='https://github.com/holviberker/flake8-holvi',
+    url='https://github.com/holvi/flake8-holvi',
     py_modules=['flake8_holvi'],
     packages=['holvi_lib2to3'],
     entry_points={
