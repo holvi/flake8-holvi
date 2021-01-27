@@ -360,7 +360,9 @@ class HolviVisitor(ast.NodeVisitor):
                 if isinstance(n, ast.ExceptHandler) and getattr(n.name, 'id', n.name) == node.value.id:
                     found = False
                     for exc in whitelist_exceptions:
-                        if exc[1] == n.type.id and exc in self.import_from_nodes:
+                        # We can ignore cases such as Exception.Foo because we only
+                        # look for ValidationError in the whitelist.
+                        if 'id' in n.type._fields and exc[1] == n.type.id and exc in self.import_from_nodes:
                             found = True
                             break
                     if not found:

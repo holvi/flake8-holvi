@@ -481,6 +481,15 @@ class HLVE313TestCase(BaseTestCase):
         """
         self.assertSourceViolates(source, ['HLVE313'])
 
+    def test_exception_as_attribute(self):
+        source = """
+        try:
+            1/0
+        except Foo.Exception as exc:
+            message = exc.message
+        """
+        self.assertSourceViolates(source, ['HLVE313'])
+
 
 class HLVE314TestCase(BaseTestCase):
 
